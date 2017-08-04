@@ -1,3 +1,39 @@
+ /*
+
+class Parent extends React.Component {
+            
+                render() {
+                  return (
+                    
+	<Grid>
+    <Grid.Row>
+    <Grid.Column width={2}>
+      console.log(this.props.)
+    </Grid.Column>
+    <Grid.Column width={8}>
+      <div id='mapid' ></div>
+    </Grid.Column>
+    <Grid.Column width={4}>
+	    <div>
+	      <DropdownExampleMultipleSelection />
+        <App />
+	    </div>
+    </Grid.Column>
+    <Grid.Column width={2}>
+      
+    </Grid.Column>
+    </Grid.Row>
+  </Grid>	    
+                  )
+                }  
+}
+ReactDOM.render(<Parent />, document.getElementById('app'));
+
+*/
+
+import 'leaflet';
+
+
 var mymap;
 var geojson;
 var material;
@@ -35,11 +71,14 @@ function highlightFeature(e) {
             if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                     layer.bringToFront();
             }
+
+            info.update(layer.feature.properties);
 }
 
 function resetHighlight(e) {
         geojson.resetStyle(e.target);
-        geojson.setStyle(style);    
+        geojson.setStyle(style);
+        info.update();    
 }
 
 function onEachFeature(feature, layer) {
@@ -74,8 +113,23 @@ function style(feature) {
 
 
 
+var info = L.control();
 
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+    this.update();
+    return this._div;
+};
 
+// method that we will use to update the control based on feature properties passed
+info.update = function (props) {
+    this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
+        '<b>' + props['Local Authority'] + '</b><br />' + props[material] + ' people / mi<sup>2</sup>'
+        : 'Hover over a state');
+};
+
+info.addTo(mymap);
+/*
 class SelectionForm extends React.Component {
         constructor(props) {
             super(props);
@@ -90,11 +144,20 @@ class SelectionForm extends React.Component {
         render() {
             return (
                     <form onChange={this.handleChangeMaterialOption} id='MaterialForm'>
-                        <select>
+                        <select id='materialselect' multiple='multiple'>
                             <option value='Glass' >Glass</option>
                             <option value='Plastic' >Plastic</option>
+                            <option value='Paper & Card' >Paper & Card</option>
+                            <option value='Metal' >Metal</option>
+                            <option value='Organic '>Organic</option>
                         </select>
+         
+         
                     </form>
+
+
+         
+ 
             )                                                   	
         }
 }
@@ -164,13 +227,45 @@ class Map extends React.Component {
         render() {
             return (
                         <div>
-                            <SelectionForm changeMaterialOption = {this.changeMaterialOption} changeStyle = {this.changeStyle} />
-                            <MinimumValueFilter changeMinimumValue = {this.changeMinimumValue} />
-                            <p> {this.state.material} </p>
-                            <p> {this.state.minimumValue} </p>
+                                <SelectionForm changeMaterialOption = {this.changeMaterialOption} changeStyle = {this.changeStyle} />
+                                <MinimumValueFilter changeMinimumValue = {this.changeMinimumValue} />
+                                <p> {this.state.material} </p>
+                                <p> {this.state.minimumValue} </p>
                         </div>
+
             )
         }
 }
 
-ReactDOM.render(<Map />, document.getElementById('yoyo'));
+const options = [
+  { key: 'angular', text: 'Angular', value: 'angular' },
+  { key: 'css', text: 'CSS', value: 'css' },
+  { key: 'design', text: 'Graphic Design', value: 'design' },
+  { key: 'ember', text: 'Ember', value: 'ember' },
+  { key: 'html', text: 'HTML', value: 'html' },
+  { key: 'ia', text: 'Information Architecture', value: 'ia' },
+  { key: 'javascript', text: 'Javascript', value: 'javascript' },
+  { key: 'mech', text: 'Mechanical Engineering', value: 'mech' },
+  { key: 'meteor', text: 'Meteor', value: 'meteor' },
+  { key: 'node', text: 'NodeJS', value: 'node' },
+  { key: 'plumbing', text: 'Plumbing', value: 'plumbing' },
+  { key: 'python', text: 'Python', value: 'python' },
+  { key: 'rails', text: 'Rails', value: 'rails' },
+  { key: 'react', text: 'React', value: 'react' },
+  { key: 'repair', text: 'Kitchen Repair', value: 'repair' },
+  { key: 'ruby', text: 'Ruby', value: 'ruby' },
+  { key: 'ui', text: 'UI Design', value: 'ui' },
+  { key: 'ux', text: 'User Experience', value: 'ux' },
+];
+
+const DropdownExampleMultipleSelection = () => (
+  <Dropdown placeholder='Skills' fluid multiple selection options={options} />
+);
+
+
+
+ReactDOM.render(<Map />, document.getElementById('dashboard'));
+
+ReactDOM.render(<DropdownExampleMultipleSelection/>, document.getElementById('dashboard'));
+*/
+
