@@ -8,21 +8,30 @@ import 'react-input-range/lib/css/index.css';
 export class MinimumValueFilter extends React.Component {
   constructor(props) {
     super(props);
- 
+   this.handleChange = this.handleChange.bind(this);
     this.state = {
-      value: { min: 2, max: 10 },
+      value: 0,
     };
   }
- 
+  
+  handleChange(val){
+	//this.setState ({
+	  //  value = this.props.value;
+//	)}
+	console.log(val);
+	//this.props.changeMaterial(this.props.value);
+  }
+  
   render() {
     return (
       <div style={{marginTop: '20px'}} >
       <InputRange
-        maxValue={20}
+        maxValue={1000}
         minValue={0}
         value={this.state.value}
-        onChange={value => this.setState({ value })} />
-      </div>
+        onChange={value => this.setState({ value })} 
+	onChangeComplete={this.handleChange}/>  
+</div>
     );
   }
 }

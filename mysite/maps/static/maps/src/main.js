@@ -1,6 +1,3 @@
-
-
-
 import 'leaflet';
 import { Grid, Image} from 'semantic-ui-react';
 import {MaterialMultipleSelection} from './Components/Dropdown';
@@ -13,40 +10,72 @@ var geojson;
 var material;
 var geoJsonTopology;
 var mouselayer;
-var minimumValue;
-
+var minimumValue=0;
 
 
 class Parent extends React.Component {
             
+
+        constructor(props) {
+                super(props);
+                this.changeMaterialOption = this.changeMaterialOption.bind(this);
+                this.changeMinimumValue = this.changeMinimumValue.bind(this)     
+                this.state = { 
+                        material: 'Select Material',
+                        minimumValue: 0,
+                };
+                
+        }
+        
+        changeMaterialOption(changedMaterial) {
+            
+                this.setState ({
+                    material: changedMaterial[0],
+                });
+                console.log(changedMaterial[0]);
+                material = changedMaterial[0];
+                geojson.setStyle(style); 
+        }
+
+        changeStyle() {
+               
+        }
+
+        changeMinimumValue(newMinimumValue) {
+                this.setState ({
+                    minimumValue: newMinimumValue,
+                })
+                minimumValue = newMinimumValue;
+                geojson.setStyle(style);
+
+        }
+
+
+
                 render() {
                   return (
-                    
-	<Grid>
-    <Grid.Row>
-    <Grid.Column width={2}>
-      console.log(this.props.)
-    </Grid.Column>
-    <Grid.Column width={8}>
-      <div id='mapid' ></div>
-    </Grid.Column>
-    <Grid.Column width={4}>
-	    <div>
-	      <DropdownExampleMultipleSelection />
-
-	    </div>
-    </Grid.Column>
-    <Grid.Column width={2}>
-      
-    </Grid.Column>
-    </Grid.Row>
-  </Grid>	    
+                        <Grid>
+                                <Grid.Row>
+                                        <Grid.Column width={2}>
+                                                console.log(this.props.)
+                                        </Grid.Column>
+                                        <Grid.Column width={8}>
+                                                <div id='mapid'  style={{margin: 'auto', width: '50%'}}></div>
+                                        </Grid.Column>
+                                        <Grid.Column width={4} id='dashboard'>
+	                                        <div>
+	                                                <MaterialMultipleSelection changeMaterial={this.changeMaterialOption}/>
+	                                                <MinimumValueFilter />
+	                                        </div>
+                                        </Grid.Column>
+                                        <Grid.Column width={2}>
+                                        </Grid.Column>
+                                </Grid.Row>
+                        </Grid>	    
                   )
                 }  
 }
 ReactDOM.render(<Parent />, document.getElementById('app'));
-
-
 
 
 mymap = L.map('mapid').setView([54.36,-2.4],6 );
@@ -109,6 +138,7 @@ function getColor(d) {
 function style(feature) {
     
         let a = feature.properties[material];
+        console.log(material)
         return {
                 fillColor:  getColor(a),
                 weight: 0.75,
@@ -137,144 +167,3 @@ info.update = function (props) {
 };
 
 info.addTo(mymap);
-/*
-class SelectionForm extends React.Component {
-        constructor(props) {
-            super(props);
-            this.handleChangeMaterialOption = this.handleChangeMaterialOption.bind(this);
-        }
-
-        handleChangeMaterialOption(e) {
-            let name = e.target.value;
-            this.props.changeMaterialOption(name);
-        }
-
-        render() {
-            return (
-                    <form onChange={this.handleChangeMaterialOption} id='MaterialForm'>
-                        <select id='materialselect' multiple='multiple'>
-                            <option value='Glass' >Glass</option>
-                            <option value='Plastic' >Plastic</option>
-                            <option value='Paper & Card' >Paper & Card</option>
-                            <option value='Metal' >Metal</option>
-                            <option value='Organic '>Organic</option>
-                        </select>
-         
-         
-                    </form>
-
-
-         
- 
-            )                                                   	
-        }
-}
-
-
-class MinimumValueFilter extends React.Component {
-
-        constructor(props) {
-            super(props);
-            this.handleChangeMinimumValue = this.handleChangeMinimumValue.bind(this);
-        }
-
-        handleChangeMinimumValue(e) {
-            let changedMinimumValue =e.target.value;
-            this.props.changeMinimumValue(changedMinimumValue);
-        }
-    
-        render () {
-                return (
-                        <form onChange={this.handleChangeMinimumValue} id='MinimumValueForm'>
-                                <input type='range' />
-                        </form>
-
-
-
-            )
-        }
-}
-
-class Map extends React.Component {
-    
-        constructor(props) {
-                super(props);
-                this.changeMaterialOption = this.changeMaterialOption.bind(this);
-                this.changeStyle = this.changeStyle.bind(this);
-                this.changeMinimumValue = this.changeMinimumValue.bind(this)     
-                this.state = { 
-                        material: 'Select Material',
-                        minimumValue: 0,
-                };
-                
-        }
-        
-        changeMaterialOption(changedMaterial) {
-            
-                this.setState ({
-                    material: changedMaterial,
-                });
-                console.log('asd');
-                material = changedMaterial;
-                geojson.setStyle(style); 
-        }
-
-        changeStyle() {
-               
-        }
-
-        changeMinimumValue(newMinimumValue) {
-                this.setState ({
-                    minimumValue: newMinimumValue,
-                })
-                minimumValue = newMinimumValue;
-                geojson.setStyle(style);
-
-        }
-
-        render() {
-            return (
-                        <div>
-                                <SelectionForm changeMaterialOption = {this.changeMaterialOption} changeStyle = {this.changeStyle} />
-                                <MinimumValueFilter changeMinimumValue = {this.changeMinimumValue} />
-                                <p> {this.state.material} </p>
-                                <p> {this.state.minimumValue} </p>
-                        </div>
-
-            )
-        }
-}
-
-const options = [
-  { key: 'angular', text: 'Angular', value: 'angular' },
-  { key: 'css', text: 'CSS', value: 'css' },
-  { key: 'design', text: 'Graphic Design', value: 'design' },
-  { key: 'ember', text: 'Ember', value: 'ember' },
-  { key: 'html', text: 'HTML', value: 'html' },
-  { key: 'ia', text: 'Information Architecture', value: 'ia' },
-  { key: 'javascript', text: 'Javascript', value: 'javascript' },
-  { key: 'mech', text: 'Mechanical Engineering', value: 'mech' },
-  { key: 'meteor', text: 'Meteor', value: 'meteor' },
-  { key: 'node', text: 'NodeJS', value: 'node' },
-  { key: 'plumbing', text: 'Plumbing', value: 'plumbing' },
-  { key: 'python', text: 'Python', value: 'python' },
-  { key: 'rails', text: 'Rails', value: 'rails' },
-  { key: 'react', text: 'React', value: 'react' },
-  { key: 'repair', text: 'Kitchen Repair', value: 'repair' },
-  { key: 'ruby', text: 'Ruby', value: 'ruby' },
-  { key: 'ui', text: 'UI Design', value: 'ui' },
-  { key: 'ux', text: 'User Experience', value: 'ux' },
-];
-
-const DropdownExampleMultipleSelection = () => (
-  <Dropdown placeholder='Skills' fluid multiple selection options={options} />
-);
-
-
-
-ReactDOM.render(<Map />, document.getElementById('dashboard'));
-
-ReactDOM.render(<DropdownExampleMultipleSelection/>, document.getElementById('dashboard'));
-*/
-
-

@@ -10,7 +10,7 @@ const webpackConfig = {
   target: 'web',
 
   entry: {
-    app: path.resolve('src/test.js'),
+    app: path.resolve('src1/main.js'),
   },
 
   module: {
@@ -18,6 +18,7 @@ const webpackConfig = {
       test: /\.(js|jsx)$/,
       exclude: /node_modules/,
       loader: 'babel-loader',
+
     },
     { 
       test: /\.css$/, 
