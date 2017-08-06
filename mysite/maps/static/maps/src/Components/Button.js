@@ -1,6 +1,7 @@
 import React from 'react';
 import  ReactDOM  from 'react-dom';
-import { Dropdown } from 'semantic-ui-react';
+import { Button, Dropdown } from 'semantic-ui-react';
+
 
 
 const options = [
@@ -26,23 +27,35 @@ const options = [
 ]
 
 
-export class MaterialMultipleSelection extends React.Component {
-  
-        constructor(props) {
+
+export class ButtonExampleIcon extends React.Component { 
+    
+     constructor(props) {
                 super(props);
                 this.handleChange = this.handleChange.bind(this);
         }
 
-        handleChange(e, data){
-                this.props.changeMaterial(data.value);
+    handleChange(){
+            this.props.onClick();
         }
-
         render () {
                 return (
-                      <Dropdown onChange={this.handleChange} placeholder='Feedstock' multiple selection options={options} pointing style={{display: 'inline-block', width: '95%'}} />
+                      <Button onClick={this.handleChange} icon='setting' circular style={{display: 'inline-block', marginLeft: '-20px'}} />
                 )
         }
 }
+    
+ /*   constructor(props) {
+      super(props);
+      this.handleChange = this.handleChange.bind(this);
+    }
 
+   
 
-
+    render() {
+      return 
+        (
+          </>
+        )
+    }
+}*/

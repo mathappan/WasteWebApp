@@ -2,6 +2,7 @@ import 'leaflet';
 import { Grid, Image} from 'semantic-ui-react';
 import {MaterialMultipleSelection} from './Components/Dropdown';
 import {MinimumValueFilter} from './Components/Filter';
+import {ButtonExampleIcon} from './Components/Button';
 import React from 'react';
 import  ReactDOM  from 'react-dom';
 
@@ -23,7 +24,9 @@ class Parent extends React.Component {
                 this.state = { 
                         material: 'Select Material',
                         minimumValue: 0,
+                        dropdownPreferences: {display: 'none', position: 'absolute', width: '100%'},
                 };
+                this.showPreferences = this.showPreferences.bind(this);
                 
         }
         
@@ -31,6 +34,7 @@ class Parent extends React.Component {
             
                 this.setState ({
                     material: changedMaterial[0],
+                    preferenceVisible: {display: 'block'},
                 });
                 console.log(changedMaterial[0]);
                 material = changedMaterial[0];
@@ -50,14 +54,21 @@ class Parent extends React.Component {
 
         }
 
+        showPreferences() {
+                console.log('ad');
+                this.setState ({
+                        dropdownPreferences: {display: 'block', position: 'absolute', width: '100%', zIndex: '1'},
+                })
+        }
 
 
+s
                 render() {
                   return (
                         <Grid>
                                 <Grid.Row>
                                         <Grid.Column width={2}>
-                                                console.log(this.props.)
+   
                                         </Grid.Column>
                                         <Grid.Column width={8}>
                                                 <div id='mapid'  style={{margin: 'auto', width: '50%'}}></div>
@@ -65,7 +76,21 @@ class Parent extends React.Component {
                                         <Grid.Column width={4} id='dashboard'>
 	                                        <div>
 	                                                <MaterialMultipleSelection changeMaterial={this.changeMaterialOption}/>
-	                                                <MinimumValueFilter />
+	                                                <div style={{positon: 'relative', display:'inline-block'}}>
+                                                                <ButtonExampleIcon onClick={this.showPreferences} />
+                                                        </div>
+                                                        <div style={this.state.dropdownPreferences}>
+                                                                <MinimumValueFilter/>
+                                                        </div>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        <p> Am I going to be hidden? </p>
+                                                        
 	                                        </div>
                                         </Grid.Column>
                                         <Grid.Column width={2}>
