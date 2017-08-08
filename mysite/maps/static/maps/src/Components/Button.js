@@ -36,7 +36,7 @@ export class ButtonExampleIcon extends React.Component {
         }
 
     handleChange(){
-            this.props.onClick();
+            this.props.store.dispatch({ type: 'preferencesButtonClicked' });
         }
         render () {
                 return (

@@ -26,7 +26,7 @@ export class MinimumValueFilter extends React.Component {
     return (
       <div style={{marginTop: '20px'}} >
       <InputRange
-        maxValue={1000}
+        maxValue={this.props.maxValue}
         minValue={0}
         value={this.state.value}
         onChange={value => this.setState({ value })} 

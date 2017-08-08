@@ -5,6 +5,7 @@ import {MinimumValueFilter} from './Components/Filter';
 import {ButtonExampleIcon} from './Components/Button';
 import React from 'react';
 import  ReactDOM  from 'react-dom';
+import { createStore, combineReducers } from 'redux';
 
 var mymap;
 var geojson;
@@ -12,11 +13,51 @@ var material;
 var geoJsonTopology;
 var mouselayer;
 var minimumValue=0;
+var maximumValue=0;
+
+var maxValuesForFeedstocks = {
+        Glass: 3500,
+}
+
+const preferences = (state = {display: 'none', position: 'absolute', width: '100%'}, action) => {
+        switch (action.type) {
+                case 'preferencesButtonClicked':
+                        console.log(state);
+                        return {display: 'block', position: 'absolute', width: '100%'}
+                default: 
+                        console.log(state);
+                        return state
+        }
+}
+
+const feedstock = (state = {material: 'None Selected', maxValue: 0}, action) => {
+        console.log(action.value);
+        switch (action.type) {
+                case 'changeInFeedstock':
+                switch (selectedValues) {
+                        case 'Glass':
+                                console.log(selectedValues);
+                                return {material: 'Glass', maxValue: maxValuesForFeedstocks[selectedValues]}
+                        default:
+                                return state
+                }
+                default:
+                        return state
+        }
+}
 
 
+//let store = createStore(preferences);
+//let store1 = createStore(feedstock);
+
+let reducers = combineReducers({
+        feedstock: feedstock,
+        preferences: preferences,
+});
+
+//const store = createStore(reducers);
 class Parent extends React.Component {
             
-
         constructor(props) {
                 super(props);
                 this.changeMaterialOption = this.changeMaterialOption.bind(this);
@@ -25,6 +66,7 @@ class Parent extends React.Component {
                         material: 'Select Material',
                         minimumValue: 0,
                         dropdownPreferences: {display: 'none', position: 'absolute', width: '100%'},
+                        maxValue: 1000,
                 };
                 this.showPreferences = this.showPreferences.bind(this);
                 
@@ -57,13 +99,14 @@ class Parent extends React.Component {
         showPreferences() {
                 console.log('ad');
                 this.setState ({
-                        dropdownPreferences: {display: 'block', position: 'absolute', width: '100%', zIndex: '1'},
+                        dropdownPreferences: {display: 'block', position: 'absolute', width: '100%', zIndex: '1', backgroundColor: '#f9f9f9'},
                 })
         }
 
 
-s
+
                 render() {
+                        
                   return (
                         <Grid>
                                 <Grid.Row>
@@ -75,12 +118,12 @@ s
                                         </Grid.Column>
                                         <Grid.Column width={4} id='dashboard'>
 	                                        <div>
-	                                                <MaterialMultipleSelection changeMaterial={this.changeMaterialOption}/>
+	                                                <MaterialMultipleSelection store={this.props.store} changeMaterial={ this.changeMaterialOption}/>
 	                                                <div style={{positon: 'relative', display:'inline-block'}}>
-                                                                <ButtonExampleIcon onClick={this.showPreferences} />
+                                                                <ButtonExampleIcon store={this.props.store} />
                                                         </div>
-                                                        <div style={this.state.dropdownPreferences}>
-                                                                <MinimumValueFilter/>
+                                                        <div style={this.props.store.getState().preferences}>
+                                                                <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
                                                         </div>
                                                         <p> Am I going to be hidden? </p>
                                                         <p> Am I going to be hidden? </p>
@@ -100,7 +143,16 @@ s
                   )
                 }  
 }
-ReactDOM.render(<Parent />, document.getElementById('app'));
+
+const store=createStore(reducers);
+
+const render= () => {
+        ReactDOM.render(<Parent store={store} />, document.getElementById('app'));
+
+}
+render();
+store.subscribe(render);
+//ReactDOM.render(<Parent />, document.getElementById('app'));
 
 
 mymap = L.map('mapid').setView([54.36,-2.4],6 );
