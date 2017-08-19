@@ -39,8 +39,12 @@ export class ButtonExampleIcon extends React.Component {
             this.props.store.dispatch({ type: 'preferencesButtonClicked' });
         }
         render () {
+                const props = this.props;
+                  const {store} = props;
+                  let state = store.getState();
+                  let materials = state.feedstock;
                 return (
-                      <Button onClick={this.handleChange} icon='setting' circular style={{display: 'inline-block', marginLeft: '-20px'}} />
+                      <Button onClick={this.handleChange} disabled={materials.buttonDisabled} primary icon='setting' circular  />
                 )
         }
 }

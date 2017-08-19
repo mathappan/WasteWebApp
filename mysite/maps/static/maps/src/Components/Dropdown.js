@@ -34,7 +34,7 @@ export class MaterialMultipleSelection extends React.Component {
         }
 
         handleChange(e, data){
-                this.props.changeMaterial(data.value);
+                this.props.store.dispatch({ type: 'changeInFeedstock', materials: data.value });
         }
 
         render () {
