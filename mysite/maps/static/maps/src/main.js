@@ -339,14 +339,7 @@ class Parent extends React.Component {
                                                         <div style={this.props.store.getState().preferences}>
                                                                 <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
                                                         </div>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
-                                                        <p> Am I going to be hidden? </p>
+                                                 
                                                         
 	                                        </div>
                                         </Grid.Column>
