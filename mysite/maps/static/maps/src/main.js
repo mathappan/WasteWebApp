@@ -30,7 +30,7 @@ var maxValuesForFeedstocks = {
         Soil: 300,
         Plasterboard: 300,
         Oil:70,
-        'Other Material': 400,
+        'Other Materials': 400,
         'Co-mingled': 10000,
         Textiles: 400,
         Furniture: 200,
@@ -48,7 +48,7 @@ const preferences = (state = {display: 'none', position: 'absolute', width: '100
                         return {display: 'block', position: 'absolute', width: '100%'}
                 case 'doneButtonClicked':
                         return {display: 'none', position: 'absolute', width: '100%'}
-                default: 
+                default:
                         //console.log(state);
                         return state
         }
@@ -67,7 +67,7 @@ const feedstock = (
         Soil: { display: 'none', width: '100%'},
         Plasterboard: { display: 'none', width: '100%'},
         Oil:{ display: 'none', width: '100%'},
-        'Other Material': { display: 'none', width: '100%'},
+        'Other Materials': { display: 'none', width: '100%'},
         'Co-mingled': { display: 'none', width: '100%'},
         Textiles: { display: 'none', width: '100%'},
         Furniture: { display: 'none', width: '100%'},
@@ -79,7 +79,7 @@ const feedstock = (
         materialsSelected: ['None Selected' ],
         buttonDisabled: true,
         }, action) => {
-        
+
         let a = {
         Glass: { display: 'none', width: '100%'},
         'Paper & Card': { display: 'none', width: '100%'},
@@ -92,7 +92,7 @@ const feedstock = (
         Soil: { display: 'none', width: '100%'},
         Plasterboard: { display: 'none', width: '100%'},
         Oil:{ display: 'none', width: '100%'},
-        'Other Material': { display: 'none', width: '100%'},
+        'Other Materials': { display: 'none', width: '100%'},
         'Co-mingled': { display: 'none', width: '100%'},
         Textiles: { display: 'none', width: '100%'},
         Furniture: { display: 'none', width: '100%'},
@@ -104,27 +104,27 @@ const feedstock = (
         materialsSelected: ['None Selected' ],
         buttonDisabled: true,
         };
-        
+
       //  console.log('Materials selected ');
        // console.log(state.materialsSelected);
         switch (action.type) {
                 case 'changeInFeedstock':
-                        
+
                         _.forEach(action.materials, function(value) {
                                 a[value] = {display: 'block', width: '90%', marginTop: '20px'};
                         });
-                        a.materialsSelected = action.materials;               
+                        a.materialsSelected = action.materials;
                         a.donebutton = {display: 'block'};
                         a.buttonDisabled = false;
-                        
-                        
-                        return a;                        
+
+
+                        return a;
                 default:
                         return state
         }
 }
 
-const filterValues = ( 
+const filterValues = (
         state = {
                 Glass: 0,
                 'Paper & Card': 0,
@@ -137,7 +137,7 @@ const filterValues = (
                 Soil: 0,
                 Plasterboard: 0,
                 Oil: 0,
-                'Other Material': 0,
+                'Other Materials': 0,
                 'Co-mingled': 0,
                 Textiles: 0,
                 Furniture: 0,
@@ -160,46 +160,46 @@ const filterValues = (
                 case 'MetalMinimumValueChanged':
                         a['Metal'] = action.value;
                         return a;
-        
+
                 case 'OrganicMinimumValueChanged':
                         a['Organic'] = action.value;
                         return a;
                 case 'WoodMinimumValueChanged':
                         a['Wood'] = action.value;
                         return a;
-        
+
                 case 'WEEEMinimumValueChanged':
                         a['WEEE'] = action.value;
                         return a;
-        
+
                 case 'BatteriesMinimumValueChanged':
                         a['Batteries'] = action.value;
                         return a;
-        
+
                 case 'TyresMinimumValueChanged':
                         a['Tyres'] = action.value;
                         return a;
-        
+
                 case 'SoilMinimumValueChanged':
                         a['Soil'] = action.value;
                         return a;
-        
+
                 case 'PlasterboardMinimumValueChanged':
                         a['Plasterboard'] = action.value;
                         return a;
-        
+
                 case 'OilMinimumValueChanged':
                         a['Oil'] = action.value;
                         return a;
-        
+
                 case 'OtherMaterialMinimumValueChanged':
-                        a['Other Material'] = action.value;
+                        a['Other Materials'] = action.value;
                         return a;
-        
+
                 case 'Co-mingledMinimumValueChanged':
                         a['Co-mingled'] = action.value;
                         return a;
-        
+
                 case 'TextilesMinimumValueChanged':
                         a['Textiles'] = action.value;
                         return a;
@@ -209,15 +209,15 @@ const filterValues = (
                 case 'CompositeMinimumValueChanged':
                         a['Composite'] = action.value;
                         return a;
-        
+
                 case 'PlasticMinimumValueChanged':
                         a['Plastic'] = action.value;
                         return a;
-        
+
                 case 'RubbleMinimumValueChanged':
                         a['Rubble'] = action.value;
                         return a;
-        
+
                 case 'PaintMinimumValueChanged':
                         a['Paint'] = action.value;
                         return a;
@@ -243,7 +243,7 @@ var legendValues = {
         Soil: [0, 100, 500, 1000],
         Plasterboard: [0, 100, 500, 1000],
         Oil: [0, 10, 25, 100],
-        'Other Material': [0, 100, 500, 1000],
+        'Other Materials': [0, 100, 500, 1000],
         Textiles: [0, 100, 500, 1000],
         'Co-mingled': [0, 1000, 10000, 25000],
         'Plastic': [0, 100, 500, 1000],
@@ -266,34 +266,34 @@ let reducers = combineReducers({
 
 //const store = createStore(reducers);
 class Parent extends React.Component {
-            
+
         constructor(props) {
                 super(props);
                 this.changeMaterialOption = this.changeMaterialOption.bind(this);
-                this.changeMinimumValue = this.changeMinimumValue.bind(this)     
-                this.state = { 
+                this.changeMinimumValue = this.changeMinimumValue.bind(this)
+                this.state = {
                         material: 'Select Material',
                         minimumValue: 0,
                         dropdownPreferences: {display: 'none', position: 'absolute', width: '100%'},
                         maxValue: 1000,
                 };
                 this.showPreferences = this.showPreferences.bind(this);
-                
+
         }
-        
+
         changeMaterialOption(changedMaterial) {
-            
+
                 this.setState ({
                     material: changedMaterial[0],
                     preferenceVisible: {display: 'block'},
                 });
                 console.log(changedMaterial[0]);
                 material = changedMaterial[0];
-                geojson.setStyle(style); 
+                geojson.setStyle(style);
         }
 
         changeStyle() {
-               
+
         }
 
         changeMinimumValue(newMinimumValue) {
@@ -315,42 +315,42 @@ class Parent extends React.Component {
 
 
                 render() {
-                        
+
                   return (
                           <div style={{marginTop: '50px'}}>
                         <Grid>
-                                
+
                                 <Grid.Row>
                                         <Grid.Column width={3}>
-   
+
                                         </Grid.Column>
                                         <Grid.Column width={6}>
                                                 <div id='mapid'  style={{margin: 'auto', width: '90%', borderRadius: '15px'}}></div>
                                         </Grid.Column>
                                         <Grid.Column width={4} id='dashboard'>
-	                                        <div>   
+	                                        <div>
                                                         <div style={{width: '90%', display:'inline-block'}}>
 	                                                <MaterialMultipleSelection store={this.props.store} changeMaterial={ this.changeMaterialOption}/>
-	                                                 
+
                                                         </div>
                                                         <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
-                                                         <ButtonExampleIcon store={this.props.store} />      
+                                                         <ButtonExampleIcon store={this.props.store} />
                                                         </div>
                                                         <div style={this.props.store.getState().preferences}>
                                                                 <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
                                                         </div>
-                                                 
-                                                        
+
+
 	                                        </div>
                                         </Grid.Column>
                                         <Grid.Column width={3}>
                                         </Grid.Column>
                                 </Grid.Row>
-                                
-                        </Grid>	
-                        </div>    
+
+                        </Grid>
+                        </div>
                   )
-                }  
+                }
 }
 
 
@@ -363,7 +363,7 @@ ReactDOM.render(<Parent store={store} />, document.getElementById('app'));
 
 
 mymap = L.map('mapid').setView([54.36,-2.4],6 );
-L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', 
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
 {
         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
         maxZoom: 18,
@@ -373,11 +373,11 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
 
 fetch('/maps/EnglandYearly/').then(function(response) {
         response.json().then(function(response1) {
-                geoJsonTopology = topojson.feature(response1, response1.objects.MapYearly);                  
+                geoJsonTopology = topojson.feature(response1, response1.objects.MapYearly);
                 geojson =  L.geoJson(geoJsonTopology, {onEachFeature:onEachFeature}).addTo(mymap);
-                   
+
         });
-}); 
+});
 
 function highlightFeature(e) {
             var layer = e.target;
@@ -401,7 +401,7 @@ function resetHighlight(e) {
         console.log(geojson);
         geojson.resetStyle(e.target);
         geojson.setStyle(style);
-        info.update();    
+        info.update();
 }
 
 function onEachFeature(feature, layer) {
@@ -413,7 +413,7 @@ function onEachFeature(feature, layer) {
 
 
 function getColor(d, thresholdValues, minimumValue = 0) {
-        
+
 
 
         return  (d > thresholdValues[3] && d > minimumValue) ? '#006837' :
@@ -423,11 +423,24 @@ function getColor(d, thresholdValues, minimumValue = 0) {
                 '#ffffcc';
 }
 
-function getColorFilter(d, a) {
-         
-      
-        
-        if ( d['Glass']>=a['Glass'] 
+function getColorFilter(d, a, materialsSelected) {
+
+        let x = [];
+       _.forEach(materialsSelected, function(value) {
+                if ( d[value] > a[value]) {
+                        x.push(true);
+                }
+                else {
+                        x.push(false);
+                }
+       });
+
+       let y = _.reduce(x, function(accumulator, n) {
+               return accumulator && n;
+       }, true);
+
+        /*
+        if ( d['Glass']>=a['Glass']
              && d['Paper & Card']>=a['Paper & Card']
              && d['Metal']>=a['Metal']
              && d['Organic']>=a['Organic']
@@ -438,7 +451,7 @@ function getColorFilter(d, a) {
              && d['Soil']>=a['Soil']
              && d['Plasterboard']>=a['Plasterboard']
              && d['Oil']>=a['Oil']
-             && d['Other Materials']>=a['Other Material']
+             && d['Other Materials']>=a['Other Materials']
              && d['Co-mingled']>=a['Co-mingled']
              && d['Textiles']>=a['Textiles']
              && d['Furniture']>=a['Furniture']
@@ -450,19 +463,26 @@ function getColorFilter(d, a) {
              }
         else {
                 return '#7570b3';
+        }*/
+
+        if (y) {
+                return '#1b9e77';
         }
-             
+        else {
+                return '#7570b3';
+        }
+
 }
 
 function style(feature) {
-        
+
         //make two functions, one for single selected value, one for multiple values
-       
+
         let a = store.getState()
         let { materialsSelected }= a.feedstock;
         var b = feature.properties;
         if (materialsSelected.length == 1) {
-                
+
                 return {
                         fill: true,
                         fillColor:  getColor(b[materialsSelected[0]], legendValues[materialsSelected[0]], a.filterValues[materialsSelected[0]]),
@@ -471,13 +491,13 @@ function style(feature) {
                         color: 'white',
                         dashArray: '3',
                         fillOpacity: 0.7
-                }        
+                }
         }
 
         else if (materialsSelected.length > 1) {
                 return{
                         fill: true,
-                        fillColor: getColorFilter(b, a.filterValues),
+                        fillColor: getColorFilter(b, a.filterValues, materialsSelected),
                         weight: 0.75,
                         opacity: 1,
                         color: 'white',
@@ -516,7 +536,7 @@ info.update = function (props) {
     let inhtml = '';
    // console.log(props);
     if (props) {
-            inhtml += '<h5>' + props['Name'] + '</h5>'; 
+            inhtml += '<h5>' + props['Name'] + '</h5>';
             _.forEach(state, function(value) {
                 inhtml +=  value + " " + props[value] + ' tonnes/year' + '<br>';
             }
@@ -541,7 +561,7 @@ var legend = L.control({position: 'bottomright'});
 
 legend.onAdd = function (map) {
 
-   
+
 
     this.div = L.DomUtil.create('div', 'info legend legendwidth');
    /*     grades = legendValues[state[0]],
@@ -563,17 +583,17 @@ legend.onAdd = function (map) {
 legend.update = function (props) {
 
         let state;
- 
+
         if (props) {
     // loop through our density intervals and generate a label with a colored square for each interval
                 state = store.getState().feedstock.materialsSelected;
                 console.log(state.length)
                 if (state.length == 1) {
-                        
+
                         let grades = legendValues[state[0]];
                         this.div.innerHTML = '<i style="background:' + '#ffffcc' + '"></i>' + state[0] + ' Not collected' +'<br>';
-                        
-                
+
+
                         for (var i = 0; i < grades.length; i++) {
                                 this.div.innerHTML +=
                                 '<i class="legendIcon" style="background:' + getColor(grades[i] + 1, grades) + '"></i> ' +
@@ -583,17 +603,17 @@ legend.update = function (props) {
                 //     return this.div;
                 }
                 else if (state.length > 1) {
-                        this.div.innerHTML = '<i style="background:#1b9e77"></i>' + 'Meets criteria' + '<br>' + '<i style="background:#7570b3"></i>' + 'Does not meet criteria'; 
+                        this.div.innerHTML = '<i style="background:#1b9e77"></i>' + 'Meets criteria' + '<br>' + '<i style="background:#7570b3"></i>' + 'Does not meet criteria';
                 }
                 else {
-                       
+
                         this.div.innerHTML = 'Select Feedstock';
                 }
 
         }
         else {
                 console.log('Legend added');
-             
+
                 this.div.innerHTML = 'Select Feedstock';
         }
 
@@ -608,7 +628,7 @@ const render= () => {
         ReactDOM.render(<Parent store={store} />, document.getElementById('app'));
         geojson.setStyle(style);
         legend.update('Test');
-   
+
 
 }
 //render();
