@@ -137,8 +137,8 @@ export class MinimumValueFilter extends React.Component {
                                         <Divider hidden/>
                                 </div>
 
-                                <div style={materials['Other Material']}>
-                                        <h5 style={{marginBottom: '25px'}}>Other Material</h5>
+                                <div style={materials['Other Materials']}>
+                                        <h5 style={{marginBottom: '25px'}}>Other Materials</h5>
                                         <InputRange formatLabel= {value =>value + ' tonnes/year'} maxValue={6000} minValue={0} value={this.state.OtherMaterial} onChange={value => this.setState({ OtherMaterial: value })} onChangeComplete={value => store.dispatch({ type:'OtherMaterialMinimumValueChanged', value: value })}/>
                                         <Divider hidden/>
                                 </div>
