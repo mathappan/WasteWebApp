@@ -1,0 +1,107 @@
+
+var data = [ 4, 8 ,15 ,18];
+var margin = {top: 20, right:40, bottom: 30, left: 40},
+        width = 700 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+var chart = d3.select(".chart")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+var y = d3.scaleLinear()
+        .domain([0, d3.max(data)])
+        .range([height, 0]);
+var barWidth = width / data.length;
+var x = d3.scaleBand()
+        .domain(["Q1", "Q2", "Q3", "Q4"])
+        .range([0, width - 0.1 * barWidth])
+        .paddingInner(0.1)
+        .paddingOuter(0)
+        .round(false);
+var bar = chart.selectAll("g")
+        .data(data)
+        .enter().append("g")
+        .attr("transform", function(d,i) { return "translate(" + i * barWidth + ",0)"; });
+bar.append("rect")
+        .attr("y", function(d) { return y(d); })
+        .attr("height", function(d) { return height - y(d); })
+        .attr("width", x.bandwidth());
+
+var xAxis = d3.axisBottom()
+        .scale(x); 
+chart.append("g")
+        .attr("class", "xaxis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+
+y = d3.scaleLinear()
+            .domain([0, 1000])
+            .range([height,0]);
+let yAxis = d3.axisLeft()
+            .scale(y);
+chart.append("g")
+        .attr("class", "yaxis")
+        .call(yAxis);
+
+function barchartUpdate(props) {
+        console.log(props);
+        let a = store.getState();
+        let { materialsSelected } = a.feedstock;
+        let primaryMaterial = materialsSelected[0];
+        let district = props.Name;
+        let q1 = _.find(Q1, function(o) { return o.Name == district; });
+        let q2 = _.find(Q2, function(o) { return o.Name == district; });
+        let q3 = _.find(Q3, function(o) { return o.Name == district; });
+        let q4 = _.find(Q4, function(o) { return o.Name == district; });
+        let quarterlydata = [ q1[primaryMaterial], q2[primaryMaterial], q3[primaryMaterial], q4[primaryMaterial] ];  
+        y = d3.scaleLinear()
+            .domain([0, d3.max(quarterlydata) * 1.3])
+            .range([height,0])
+            .nice();
+        yAxis = d3.axisLeft()
+                    .scale(y);
+
+        chart.selectAll("rect")
+            .data(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("y", function(d) { return y(d); })
+            .attr("height", function(d) { return height - y(d)})
+        chart.selectAll("rect")
+                .on("mouseover", function(d,i) {
+                        console.log(d3.select(this).attr("y") / 2);
+                        console.log(i*barWidth/2);
+                        let coordinates = d3.mouse(this);
+
+                        var xPosition = (i+1)*barWidth - barWidth/2;
+                        var yPosition = d3.select(this).attr("y") / 4;
+                                       // var xpos = xPosition + (i * x.bandwidth());
+                                     //   console.log(xpos);
+
+                        d3.select("#tooltip")
+                                .style("left", xPosition  + "px")
+                                .style("top", yPosition + "px")
+                                .select("#value");
+                        d3.select("#hoverdisplay").text(d + " tonnes");
+
+
+                        d3.select("#tooltip").classed("hidden", false);
+
+		})
+                .on("mouseout", function() {
+
+
+                        d3.select("#tooltip").classed("hidden", true);
+                });
+
+        chart.select(".yaxis")
+            .transition()
+            .duration(1000)
+            .call(yAxis);
+        console.log(quarterlydata);
+  
+}
+

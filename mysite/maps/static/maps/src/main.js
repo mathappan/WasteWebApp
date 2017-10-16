@@ -1,5 +1,5 @@
 import 'leaflet';
-import { Grid, Image} from 'semantic-ui-react';
+import { Grid, Image, Segment, Button, Popup} from 'semantic-ui-react';
 import {MaterialMultipleSelection} from './Components/Dropdown';
 import {MinimumValueFilter} from './Components/Filter';
 import {ButtonExampleIcon} from './Components/Button';
@@ -7,7 +7,8 @@ import React from 'react';
 import  ReactDOM  from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import 'lodash';
-
+import * as d3 from "d3";
+ import { legendColor } from 'd3-svg-legend';            
 
 var mymap;
 var geojson;
@@ -16,7 +17,8 @@ var geoJsonTopology;
 var mouselayer;
 var minimumValue=0;
 var maximumValue=0;
-
+var Q1, Q2, Q3, Q4;
+var Q1r, Q2r, Q3r, Q4r, fullYearr; //these variables store the reprocessing data
 
 var maxValuesForFeedstocks = {
         Glass: 3000,
@@ -41,15 +43,15 @@ var maxValuesForFeedstocks = {
 }
 
 
-const preferences = (state = {display: 'none', position: 'absolute', width: '100%'}, action) => {
+const preferences = (state = {display: 'none', position: 'absolute', width: '100%', zIndex: 999}, action) => {
         switch (action.type) {
                 case 'preferencesButtonClicked':
-                       // console.log(state);
-                        return {display: 'block', position: 'absolute', width: '100%'}
+                     
+                        return {display: 'block', position: 'absolute', width: '100%', zIndex: 999}
                 case 'doneButtonClicked':
-                        return {display: 'none', position: 'absolute', width: '100%'}
+                        return {display: 'none', position: 'absolute', width: '100%', zIndex: 999}
                 default:
-                        //console.log(state);
+                      
                         return state
         }
 }
@@ -105,8 +107,6 @@ const feedstock = (
         buttonDisabled: true,
         };
 
-      //  console.log('Materials selected ');
-       // console.log(state.materialsSelected);
         switch (action.type) {
                 case 'changeInFeedstock':
 
@@ -146,7 +146,7 @@ const filterValues = (
                 Rubble: 0,
                 Paint: 0,
 }, action) => {
-        //console.log(state);
+      
         let a = state;
         switch (action.type) {
                 case 'GlassMinimumValueChanged':
@@ -253,11 +253,6 @@ var legendValues = {
         Paint: [0, 10, 50, 100]
 }
 
-
-
-//let store = createStore(preferences);
-//let store1 = createStore(feedstock);
-
 let reducers = combineReducers({
         feedstock: feedstock,
         preferences: preferences,
@@ -287,7 +282,7 @@ class Parent extends React.Component {
                     material: changedMaterial[0],
                     preferenceVisible: {display: 'block'},
                 });
-                console.log(changedMaterial[0]);
+               
                 material = changedMaterial[0];
                 geojson.setStyle(style);
         }
@@ -306,7 +301,7 @@ class Parent extends React.Component {
         }
 
         showPreferences() {
-                console.log('ad');
+            
                 this.setState ({
                         dropdownPreferences: {display: 'block', position: 'absolute', width: '100%', zIndex: '1', backgroundColor: '#f9f9f9'},
                 })
@@ -317,36 +312,67 @@ class Parent extends React.Component {
                 render() {
 
                   return (
-                          <div style={{marginTop: '50px'}}>
-                        <Grid>
-
-                                <Grid.Row>
-                                        <Grid.Column width={3}>
-
-                                        </Grid.Column>
-                                        <Grid.Column width={6}>
+                        <div style={{marginTop: '50px', marginLeft: '100px', marginRight:'50px'}}>
+                        <Grid columns={2} divided>
+                                <Grid.Row stretched>
+                                        <Grid.Column>
+                                        <Segment>
                                                 <div id='mapid'  style={{margin: 'auto', width: '90%', borderRadius: '15px'}}></div>
+                                        </Segment>
                                         </Grid.Column>
-                                        <Grid.Column width={4} id='dashboard'>
-	                                        <div>
-                                                        <div style={{width: '90%', display:'inline-block'}}>
-	                                                <MaterialMultipleSelection store={this.props.store} changeMaterial={ this.changeMaterialOption}/>
+                                        <Grid.Column id='dashboard'>
+	                                        
+                                                        <div>
+                                                                <div style={{width: '90%', display:'inline-block'}}>
+                                                                <MaterialMultipleSelection store={this.props.store} changeMaterial={ this.changeMaterialOption}/>
+
+                                                                </div>
+                                                                <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
+                                                                     <Popup
+                                                                        trigger={<Button icon='help circle outline' />}
+                                                                        content="The map will display the quantity of feedstock being collected by each local authority. If multiple feedstocks are
+                                                                        selected, the map will display those districts where the feedstocks selected are collected and not collected."
+                                                                        basic
+                                                                />    
+                                                                <ButtonExampleIcon store={this.props.store} />
+                                                                </div>
+                                                                <div style={this.props.store.getState().preferences}>
+                                                                        <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
+                                                                        <Popup
+                                                                        trigger={<Button icon='help circle outline' />}
+                                                                        content="The local authorities can be filtered based on how many tonnes of feedstock are required in a year. If only one feedstock is selected,
+                                                                        the local authorities not meeting the criteria are represented by the color showing the material is not collected."
+                                                                        basic
+                                                                />    
+                                                                </div>
+
 
                                                         </div>
+                                                
+                                                <Segment> 
+                                                        <svg className="linechart"></svg>
                                                         <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
-                                                         <ButtonExampleIcon store={this.props.store} />
-                                                        </div>
-                                                        <div style={this.props.store.getState().preferences}>
-                                                                <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
+                                                                <Popup
+                                                                        trigger={<Button icon='help circle outline' />}
+                                                                        content="The line chart will show data for the first material selected."
+                                                                        basic
+                                                                />
                                                         </div>
 
-
-	                                        </div>
-                                        </Grid.Column>
-                                        <Grid.Column width={3}>
+                                                </Segment>
+                                                <Segment>
+                                                          <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
+                                                                <Popup
+                                                                        trigger={<Button icon='help circle outline' />}
+                                                                        content="The bar chart will show data for the first material selected."
+                                                                        basic
+                                                                />
+                                                        </div>
+                                                        <svg className="barchart"></svg>
+                                                     
+                                                </Segment>
                                         </Grid.Column>
                                 </Grid.Row>
-
                         </Grid>
                         </div>
                   )
@@ -371,17 +397,104 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
         accessToken: 'pk.eyJ1IjoibWF0aGV3cGsxMyIsImEiOiJjajR6YXBsZ3EwZTM2MndtZDFtcHN4ajBmIn0.3qQyNjJTtkkXr_pqLRp37g'
 }).addTo(mymap);
 
+fetch('/maps/EnglandApr15Jan16/').then(function(response) {
+        response.json().then(function(response1) {
+                geoJsonTopology = topojson.feature(response1, response1.objects.yearlydataappendedtomap);
+                geojson =  L.geoJson(geoJsonTopology, {onEachFeature:onEachFeature}).addTo(mymap);
+        });
+});
+
+/*
 fetch('/maps/EnglandYearly/').then(function(response) {
         response.json().then(function(response1) {
                 geoJsonTopology = topojson.feature(response1, response1.objects.MapYearly);
+                console.log(geoJsonTopology);
                 geojson =  L.geoJson(geoJsonTopology, {onEachFeature:onEachFeature}).addTo(mymap);
+        });
+});
+*/
+fetch('/quarterly-data/Q1').then(function(response) {
+        response.text().then(function(response1) {
+                Q1 = d3.csvParse(response1);
+        });
+});
+
+fetch('/quarterly-data/Q2').then(function(response) {
+        response.text().then(function(response1) {
+                Q2 = d3.csvParse(response1);
+        });
+});
+
+fetch('/quarterly-data/Q3').then(function(response) {
+        response.text().then(function(response1) {
+                Q3 = d3.csvParse(response1);
+              
+        });
+});
+
+fetch('/quarterly-data/Q4').then(function(response) {
+        response.text().then(function(response1) {
+                Q4 = d3.csvParse(response1);
+        });
+});
+
+
+fetch('/reprocessing-data/Q1').then(function(response) {
+        response.json().then(function(response1) {
+                Q1r = response1;
+                
+        });
+});
+
+
+fetch('/reprocessing-data/Q2').then(function(response) {
+        response.json().then(function(response1) {
+                Q2r = response1;
+        });
+});
+
+
+fetch('/reprocessing-data/Q3').then(function(response) {
+        response.json().then(function(response1) {
+                Q3r = response1;
+        });
+});
+
+
+fetch('/reprocessing-data/Q4').then(function(response) {
+        response.json().then(function(response1) {
+                Q4r = response1;
+        });
+});
+
+fetch('/reprocessing-data/FullYear').then(function(response) {
+        response.json().then(function(response1) {
+                fullYearr = response1;
 
         });
 });
 
+var clicked = "";
+function changeColoronClick(e) {
+        
+        var layer;
+        if (clicked != "") {
+                resetHighlight( clicked );}
+        
+        layer = e.target;
+        clicked = e;
+        layer.setStyle({
+                weight: 5,
+                color: '#9933FF',
+                dashArray: '',
+                fillOpacity:0.7
+        })
+
+}
+
 function highlightFeature(e) {
             var layer = e.target;
-
+            console.log(layer);
             layer.setStyle({
                     weight: 5,
                     color: '#666',
@@ -397,17 +510,34 @@ function highlightFeature(e) {
 }
 
 function resetHighlight(e) {
-        console.log(e.target);
-        console.log(geojson);
-        geojson.resetStyle(e.target);
-        geojson.setStyle(style);
+        var layer = e.target;
+        layer.setStyle({
+                 weight: 0.75,
+                        opacity: 1,
+                        color: 'white',
+                        dashArray: '3',
+                        fillOpacity: 0.7
+        });
+        
+      
+        //geojson.resetStyle(e.target);
+        //geojson.setStyle(style);
         info.update();
 }
+
+function clickFeature(e) {
+        var layer = e.target;
+        changeColoronClick(e);
+        linechartUpdate(layer.feature.properties);
+        barchartUpdate(layer.feature.properties);
+}
+
 
 function onEachFeature(feature, layer) {
         layer.on({
             mouseover: highlightFeature,
             mouseout: resetHighlight,
+            click: clickFeature,
         });
 }
 
@@ -438,32 +568,6 @@ function getColorFilter(d, a, materialsSelected) {
        let y = _.reduce(x, function(accumulator, n) {
                return accumulator && n;
        }, true);
-
-        /*
-        if ( d['Glass']>=a['Glass']
-             && d['Paper & Card']>=a['Paper & Card']
-             && d['Metal']>=a['Metal']
-             && d['Organic']>=a['Organic']
-             && d['Wood']>=a['Wood']
-             && d['WEEE']>=a['WEEE']
-             && d['Batteries']>=a['Batteries']
-             && d['Tyres']>=a['Tyres']
-             && d['Soil']>=a['Soil']
-             && d['Plasterboard']>=a['Plasterboard']
-             && d['Oil']>=a['Oil']
-             && d['Other Materials']>=a['Other Materials']
-             && d['Co-mingled']>=a['Co-mingled']
-             && d['Textiles']>=a['Textiles']
-             && d['Furniture']>=a['Furniture']
-             && d['Composite']>=a['Composite']
-             && d['Plastic']>=a['Plastic']
-             && d['Rubble']>=a['Rubble']
-             && d['Paint']>=a['Paint'] ) {
-                return '#1b9e77'
-             }
-        else {
-                return '#7570b3';
-        }*/
 
         if (y) {
                 return '#1b9e77';
@@ -534,7 +638,7 @@ info.onAdd = function (map) {
 info.update = function (props) {
     let state = store.getState().feedstock.materialsSelected;
     let inhtml = '';
-   // console.log(props);
+  
     if (props) {
             inhtml += '<h5>' + props['Name'] + '</h5>';
             _.forEach(state, function(value) {
@@ -557,9 +661,9 @@ info.addTo(mymap);
 
 
 
-var legend = L.control({position: 'bottomright'});
+var legendmap = L.control({position: 'bottomright'});
 
-legend.onAdd = function (map) {
+legendmap.onAdd = function (map) {
 
 
 
@@ -580,14 +684,14 @@ legend.onAdd = function (map) {
    return this.div;
 };
 
-legend.update = function (props) {
+legendmap.update = function (props) {
 
         let state;
 
         if (props) {
     // loop through our density intervals and generate a label with a colored square for each interval
                 state = store.getState().feedstock.materialsSelected;
-                console.log(state.length)
+              
                 if (state.length == 1) {
 
                         let grades = legendValues[state[0]];
@@ -599,7 +703,7 @@ legend.update = function (props) {
                                 '<i class="legendIcon" style="background:' + getColor(grades[i] + 1, grades) + '"></i> ' +
                                 grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
                         }
-                        console.log('Legend update entered');
+                      
                 //     return this.div;
                 }
                 else if (state.length > 1) {
@@ -612,7 +716,7 @@ legend.update = function (props) {
 
         }
         else {
-                console.log('Legend added');
+            
 
                 this.div.innerHTML = 'Select Feedstock';
         }
@@ -621,15 +725,326 @@ legend.update = function (props) {
 
 
 
-legend.addTo(mymap);
+legendmap.addTo(mymap);
+
+ 
+
+var data = [ {period: "Apr15 - Jun15", val: 4},{period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
+
+var margin = {top: 20, right:40, bottom: 30, left: 50},
+        width = 700 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+var linechart = d3.select(".linechart")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+var yline = d3.scaleLinear()
+        .domain([0, 20])
+        .range([height, 0]);
+
+var xline = d3.scaleOrdinal()
+        .domain(["","Apr15 - Jun15", "Jul15 - Sep15", "Oct15 - Dec15", "Jan16 - Mar16",""])
+        .range([0, width/6, 2*width/6, 3*width/6, 4*width/6, 5*width/6]);
+
+
+var line = d3.line()
+            .x( function(d) { return xline(d.period); } )
+            .y( function(d) { return yline(d.val); });
+            
+linechart.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line)
+//    .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+              .attr("stroke-width", 1.5);
+var xAxisline = d3.axisBottom()
+        .scale(xline); 
+linechart.append("g")
+        .attr("class", "xaxis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisline);
+
+
+let yAxisline = d3.axisLeft()
+            .scale(yline);
+
+
+linechart.append("g")
+        .attr("class", "yaxisline")
+        .call(yAxisline);
+
+linechart.selectAll("circle")
+    .data(data)
+  .enter().append("circle")
+    .attr("class", "circle");
+    //.attr("cx", function(d) { return xline(d.period); })
+    //.attr("cy", function(d) { return yline(d.val); })
+    //.attr("r", 4);
+    //.attr("fill", "steelblue");
+
+        linechart.append("text")
+        .attr("class", "titlelinechart")
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Quarterly Variation in Material Collected" );
+
+linechart.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes");      
+
+
+function linechartUpdate(props) {
+
+
+        let a = store.getState();
+        let { materialsSelected } = a.feedstock;
+        let primaryMaterial = materialsSelected[0];
+        let district = props.Name;
+        let q1 = _.find(Q1, function(o) { return o.Name == district; });
+        let q2 = _.find(Q2, function(o) { return o.Name == district; });
+        let q3 = _.find(Q3, function(o) { return o.Name == district; });
+        let q4 = _.find(Q4, function(o) { return o.Name == district; });
+        let arrayofquarterlydata = [parseFloat(q1[primaryMaterial]), parseFloat(q2[primaryMaterial]), parseFloat(q3[primaryMaterial]), parseFloat(q4[primaryMaterial])];
+        let quarterlydata = [ { period: "Apr15 - Jun15", val: q1[primaryMaterial]}, { period: "Jul15 - Sep15", val: q2[primaryMaterial]}, { period: "Oct15 - Dec15", val: q3[primaryMaterial]}, {period: "Jan16 - Mar16", val: q4[primaryMaterial]} ];  
+
+        linechart.select(".titlelinechart")   
+        .transition()      
+        .text("Quarterly Variation in " + primaryMaterial + " Collected in " + props.Name );
+
+
+
+
+        yline = d3.scaleLinear()
+            .domain([0, _.max(arrayofquarterlydata) * 1.3])
+            .range([height,0])
+            .nice();
+        
+        yAxisline = d3.axisLeft()
+                    .scale(yline);
+
+        linechart.select(".line")
+            .datum(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("d", line)
+            .attr("stroke", "steelblue")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+
+        linechart.selectAll("circle")
+            .data(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("cx", function(d) { return xline(d.period); })
+            .attr("cy", function(d) { return yline(d.val); })
+            .attr("r", 4)
+            .attr("fill", "steelblue");
+
+        linechart.select(".yaxisline")
+            .transition()
+            .duration(1000)
+            .call(yAxisline);
+     
+  
+}
+
+
+
+
+margin = {top: 20, right:230, bottom: 30, left: 40},
+width = 900 - margin.left - margin.right,
+height = 300 - margin.top - margin.bottom;
+
+var barchart = d3.select(".barchart")
+                .attr("width", width +  margin.left + margin.right)
+                .attr("height", height + margin.bottom + margin.top)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+var ybar = d3.scaleLinear()
+        .domain([0,20])
+        .range([height, 0]);
+
+
+var data = [ {period: "Apr15 - Jun15", val: 4},{period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
+
+var xbar = d3.scaleBand()
+        .domain(["Apr15 - Jun15", "Jul15 - Sep15", "Oct15 - Dec15", "Jan16 - Mar16"])
+        .range([0, width-100])
+        .paddingInner(0.1)
+        .paddingOuter(0)
+        .round(false);
+
+var newxbar =  d3.scaleBand()
+        .domain([0, 1, 2, 3])
+        .range([0, width-100])
+        .paddingInner(0.1)
+        .paddingOuter(0)
+        .round(false);
+/*
+barchart.selectAll(".bar1")
+      .data(data1)
+      .enter().append("rect")
+      .attr("class", "bar1")
+      .attr("x", function(d) { return xbar(d.period); })
+      .attr("y", function(d) { return ybar(d.val); })
+      .attr("height", function(d) { return height - ybar(d.val); })
+      .attr("width", xbar.bandwidth());
+    //  .attr("fill", "steelblue");
+*/
+
+let yAxisbar = d3.axisLeft()
+            .scale(ybar);
+
+var xAxisbar = d3.axisBottom()
+        .scale(xbar); 
+
+var z = d3.scaleOrdinal()
+    .domain(["Recycling", "Reuse", "Windrow or other composting", "In vessel composting", "Anaerobic or Aerobic Digestion Segregated", "Exported (Recycling)", "Exported (Reuse)"])
+    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
+
+
+
+barchart.append("g")
+        .attr("class", "yaxisbar")
+        .call(yAxisbar);
+
+barchart.append("g")
+        .attr("class", "xaxisbar")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisbar);
+
+  barchart.append("g")
+        .attr("class", "stackedgroups")
+
+          
+var ordinal = d3.scaleOrdinal()
+  .domain(["a", "b", "c", "d", "e"])
+  .range([ "rgb(153, 107, 195)", "rgb(56, 106, 197)", "rgb(93, 199, 76)", "rgb(223, 199, 31)", "rgb(234, 118, 47)"]);
+
+
+var secondchart = d3.select(".barchart")
+        .append("g")
+  .attr("class", "legendOrdinal")
+  .attr("transform", "translate(600,20)");
+
+var legendOrdinal = legendColor()
+  //d3 symbol creates a path-string, for example
+  //"M0,-8.059274488676564L9.306048591020996,
+  //8.059274488676564 -9.306048591020996,8.059274488676564Z"
+  .shape("path", d3.symbol().type(d3.symbolSquare).size(150)())
+  .shapePadding(10)
+  //use cellFilter to hide the "e" cell
+  .cellFilter(function(d){ return d.label !== "e" })
+  .scale(z)
+  .labelWrap(150);
+
+d3.select(".legendOrdinal")
+  .call(legendOrdinal);
+  
+barchart.append("text")
+        .attr("class", "titlebarchart")
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Primary Reprocessing" );
+
+
+barchart.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes");      
+
+
+
+
+function barchartUpdate(props) {
+       
+                let a = store.getState();
+                let { materialsSelected } = a.feedstock;
+                let primaryMaterial = materialsSelected[0];
+                let district = props.Name;
+                let data123 = fullYearr[district][primaryMaterial];
+               
+                let facilities =  _.sortBy (_.drop( _.union(_.keys(fullYearr[district][primaryMaterial][0]), _.keys(fullYearr[district][primaryMaterial][1]), _.keys(fullYearr[district][primaryMaterial][2]),
+                _.keys(fullYearr[district][primaryMaterial][3]), 'quarter') ));
+                var stack = d3.stack()
+                        .keys(facilities)
+                        .order(d3.stackOrderNone)
+                        .offset(d3.stackOffsetNone);
+                var stackeddata = stack(data123);
+                _.forEach(stackeddata, function(val1, index1) {
+                        _.forEach(val1, function(val2, index2) {
+                                _.forEach(val2, function(val3, index3) {
+                                        if (_.isNaN(val3)) {
+                                                stackeddata[index1][index2][index3] = 0;
+                                        }
+                                })
+                        }
+                )});
+                ybar = d3.scaleLinear()
+                .domain([0, _.max(_.flattenDepth(stackeddata[stackeddata.length - 1],2 )) * 1.3])
+                .range([height,0])
+                .nice();
+                yAxisbar = d3.axisLeft()
+                        .scale(ybar);
+
+                barchart.select(".stackedgroups")
+                        .remove();
+                barchart.append("g")
+        .attr("class", "stackedgroups")
+                .selectAll("g")
+                .data(stackeddata)
+                .enter().append("g")
+                .attr("fill", function(d) { return z(d.key); })
+                .selectAll("rect")
+                .data(function(d) { return d; })
+                .enter().append("rect")
+                .attr("x", function(d,i) { return newxbar(i); })
+                .attr("y", function(d) { return ybar(d[1]); })
+                .attr("height", function(d) { return ybar(d[0]) - ybar(d[1]); })
+                .attr("width", xbar.bandwidth());
+
+
+                 barchart.select(".titlebarchart")   
+        .transition()      
+        .text("Primary Reprocessing for " + primaryMaterial + " in " + props.Name );
+
+
+                barchart.select(".yaxisbar")
+                .transition()
+                .duration(1000)
+                .call(yAxisbar);
+       
+}
+
+
 
 
 const render= () => {
         ReactDOM.render(<Parent store={store} />, document.getElementById('app'));
         geojson.setStyle(style);
-        legend.update('Test');
-
+        legendmap.update('Test');
 
 }
-//render();
 store.subscribe(render);
