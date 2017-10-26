@@ -17,7 +17,7 @@ var geoJsonTopology;
 var mouselayer;
 var minimumValue=0;
 var maximumValue=0;
-var Q1, Q2, Q3, Q4;
+var Q1, Q2, Q3, Q4, preAprilQ1, preAprilQ2, preAprilQ3, preAprilQ4;
 var Q1r, Q2r, Q3r, Q4r, fullYearr; //these variables store the reprocessing data
 
 var maxValuesForFeedstocks = {
@@ -438,6 +438,31 @@ fetch('/quarterly-data/Q4').then(function(response) {
         });
 });
 
+fetch('/quarterly-data/preAprilQ1').then(function(response) {
+        response.text().then(function(response1) {
+                preAprilQ1 = d3.csvParse(response1);
+        });
+});
+
+fetch('/quarterly-data/preAprilQ2').then(function(response) {
+        response.text().then(function(response1) {
+                preAprilQ2 = d3.csvParse(response1);
+        });
+});
+
+fetch('/quarterly-data/preAprilQ3').then(function(response) {
+        response.text().then(function(response1) {
+                preAprilQ3 = d3.csvParse(response1);
+              
+        });
+});
+
+fetch('/quarterly-data/preAprilQ4').then(function(response) {
+        response.text().then(function(response1) {
+                preAprilQ4 = d3.csvParse(response1);
+        });
+});
+
 
 fetch('/reprocessing-data/Q1').then(function(response) {
         response.json().then(function(response1) {
@@ -494,7 +519,7 @@ function changeColoronClick(e) {
 
 function highlightFeature(e) {
             var layer = e.target;
-            console.log(layer);
+         
             layer.setStyle({
                     weight: 5,
                     color: '#666',
@@ -727,8 +752,10 @@ legendmap.update = function (props) {
 
 legendmap.addTo(mymap);
 
- 
 
+
+ 
+/*
 var data = [ {period: "Apr15 - Jun15", val: 4},{period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
 
 var margin = {top: 20, right:40, bottom: 30, left: 50},
@@ -805,7 +832,6 @@ linechart.append("text")
       .style("text-anchor", "middle")
       .text("Tonnes");      
 
-
 function linechartUpdate(props) {
 
 
@@ -826,6 +852,181 @@ function linechartUpdate(props) {
 
 
 
+
+        yline = d3.scaleLinear()
+            .domain([0, _.max(arrayofquarterlydata) * 1.3])
+            .range([height,0])
+            .nice();
+        
+        yAxisline = d3.axisLeft()
+                    .scale(yline);
+
+        linechart.select(".line")
+            .datum(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("d", line)
+            .attr("stroke", "steelblue")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+
+        linechart.selectAll("circle")
+            .data(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("cx", function(d) { return xline(d.period); })
+            .attr("cy", function(d) { return yline(d.val); })
+            .attr("r", 4)
+            .attr("fill", "steelblue");
+
+        linechart.select(".yaxisline")
+            .transition()
+            .duration(1000)
+            .call(yAxisline);
+     
+  
+}
+
+ 
+*/
+var data = [ {period: "Apr14 - Jun14", val: 1}, {period: "Jul14 - Sep14", val: 3}, {period: "Oct14 - Dec14", val: 5}, {period: "Jan15 - Mar15", val: 7}, {period: "Apr15 - Jun15", val: 4}, {period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
+
+var margin = {top: 20, right:40, bottom: 30, left: 50},
+        width = 700 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+var linechart = d3.select(".linechart")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+var yline = d3.scaleLinear()
+        .domain([0, 20])
+        .range([height, 0]);
+
+var xline = d3.scaleOrdinal()
+        .domain(["","Apr14 - Jun14", "Jul14 - Sep14", "Oct14 - Dec14", "Jan15 - Mar15", "Apr15 - Jun15", "Jul15 - Sep15", "Oct15 - Dec15", "Jan16 - Mar16",""])
+        .range([0, 1*width/10, 2*width/10, 3*width/10, 4*width/10, 5*width/10, 6*width/10, 7*width/10, 8*width/10, 9*width/10]);
+
+
+var line = d3.line()
+            .x( function(d) { return xline(d.period); } )
+            .y( function(d) { return yline(d.val); });
+            
+linechart.append("path")
+    .datum(data)
+    .attr("class", "line")
+    .attr("d", line)
+  // .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+              .attr("stroke-width", 1.5)
+              .attr("fill", "none");
+
+// wrap function taken from https://bl.ocks.org/mbostock/7555321
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
+var xAxisline = d3.axisBottom()
+        .scale(xline); 
+linechart.append("g")
+        .attr("class", "xaxis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisline)
+        .selectAll(".tick text")
+        .call(wrap, 60);
+
+let yAxisline = d3.axisLeft()
+            .scale(yline);
+
+
+linechart.append("g")
+        .attr("class", "yaxisline")
+        .call(yAxisline);
+
+linechart.selectAll("circle")
+    .data(data)
+  .enter().append("circle")
+    .attr("class", "circle");
+    //.attr("cx", function(d) { return xline(d.period); })
+    //.attr("cy", function(d) { return yline(d.val); })
+    //.attr("r", 4);
+    //.attr("fill", "steelblue");
+
+        linechart.append("text")
+        .attr("class", "titlelinechart")
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("Quarterly Variation in Material Collected" );
+
+linechart.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes");      
+
+
+function linechartUpdate(props) {
+
+
+        let a = store.getState();
+        let { materialsSelected } = a.feedstock;
+        let primaryMaterial = materialsSelected[0];
+        let district = props.Name;
+        let q1 = _.find(Q1, function(o) { return o.Name == district; });
+        let q2 = _.find(Q2, function(o) { return o.Name == district; });
+        let q3 = _.find(Q3, function(o) { return o.Name == district; });
+        let q4 = _.find(Q4, function(o) { return o.Name == district; });
+
+        let preAprilq1 = _.find(preAprilQ1, function(o) { return o.Name == district; });
+        let preAprilq2 = _.find(preAprilQ2, function(o) { return o.Name == district; });
+        let preAprilq3 = _.find(preAprilQ3, function(o) { return o.Name == district; });
+        let preAprilq4 = _.find(preAprilQ4, function(o) { return o.Name == district; });
+        console.log(preAprilq1);
+        let arrayofquarterlydata = [parseFloat(q1[primaryMaterial]), parseFloat(q2[primaryMaterial]), parseFloat(q3[primaryMaterial]), parseFloat(q4[primaryMaterial]),
+                                        parseFloat(preAprilq1[primaryMaterial]), parseFloat(preAprilq2[primaryMaterial]), parseFloat(preAprilq3[primaryMaterial]), parseFloat(preAprilq4[primaryMaterial])];
+        let quarterlydata = [ { period: "Apr14 - Jun14", val: preAprilq1[primaryMaterial]}, { period: "Jul14 - Sep14", val: preAprilq2[primaryMaterial]}, 
+                                { period: "Oct14 - Dec14", val: preAprilq3[primaryMaterial]}, {period: "Jan15 - Mar15", val: preAprilq4[primaryMaterial]},
+                                  { period: "Apr15 - Jun15", val: q1[primaryMaterial]}, { period: "Jul15 - Sep15", val: q2[primaryMaterial]}, 
+                                    { period: "Oct15 - Dec15", val: q3[primaryMaterial]}, {period: "Jan16 - Mar16", val: q4[primaryMaterial]}
+                            ];  
+
+        linechart.select(".titlelinechart")   
+        .transition()      
+        .text("Quarterly Variation in " + primaryMaterial + " Collected in " + props.Name );
+
+
+        console.log(arrayofquarterlydata + "\n" + quarterlydata);
 
         yline = d3.scaleLinear()
             .domain([0, _.max(arrayofquarterlydata) * 1.3])
