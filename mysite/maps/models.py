@@ -23,3 +23,8 @@ class ReprocessingData(models.Model):
     def __str__(self):
         return self.quarter_name
 
+class OperatorsData(models.Model):
+    period_name = models.CharField(max_length = 200, primary_key = True)
+    data = models.FileField()
+    def __str__(self):
+        return self.period_name

@@ -1,6 +1,6 @@
 import 'leaflet';
-import { Grid, Image, Segment, Button, Popup} from 'semantic-ui-react';
-import {MaterialMultipleSelection} from './Components/Dropdown';
+import { Grid, Image, Segment, Button, Popup, Dimmer} from 'semantic-ui-react';
+import {WasteInformationOptionsSelection} from './Components/Dropdown';
 import {MinimumValueFilter} from './Components/Filter';
 import {ButtonExampleIcon} from './Components/Button';
 import React from 'react';
@@ -8,41 +8,52 @@ import  ReactDOM  from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 import 'lodash';
 import * as d3 from "d3";
- import { legendColor } from 'd3-svg-legend';            
+import { legendColor } from 'd3-svg-legend';     
+import {SegmentBarchartContainer1} from './Components/TopTwobarchartsContainer';
+//import {SegmentBarchartContainer2} from './Components/LineChartBarChart';
+import {MaterialMultipleSelection} from './Components/MaterialSelection';   
+import {Table} from './Components/table';
+import 'react-table/react-table.css';
 
 var mymap;
-var geojson;
 var material;
-var geoJsonTopology;
+
+var geojson;
+
+var geojson1;
+var geojsonlayer1;
+var geojsonTopology1;
+
+var geojson2;
+var geojsonlayer2;
+var geojsonTopology2;
+
 var mouselayer;
 var minimumValue=0;
 var maximumValue=0;
 var Q1, Q2, Q3, Q4, preAprilQ1, preAprilQ2, preAprilQ3, preAprilQ4;
 var Q1r, Q2r, Q3r, Q4r, fullYearr; //these variables store the reprocessing data
 
-var maxValuesForFeedstocks = {
-        Glass: 3000,
-        'Paper & Card': 5000,
-        Metal: 1500,
-        Organic: 6000,
-        Wood: 3000,
-        WEEE: 1000,
-        Batteries: 50,
-        Tyres: 45,
-        Soil: 300,
-        Plasterboard: 300,
-        Oil:70,
-        'Other Materials': 400,
-        'Co-mingled': 10000,
-        Textiles: 400,
-        Furniture: 200,
-        Composite: 100,
-        Plastic: 1000,
-        Rubble: 3000,
-        Paint: 100,
+var operators_data;
+
+/*
+var maxValuesForOptions = {
+        'Total Local Authority Collected Waste': 1200000,
+        'Household – Total Waste': 1100000,
+        'Household - Waste not Sent for Recycling': 600000,
+        'Non-household – Total Waste': 140000,
+        'Non-household – Waste not Sent for Recycling': 120000,
+        'Local Authority Collected Waste - Not Sent for Recycling': 700000 
 }
+*/
 
 
+var optionsforMap1 = ['Total Local Authority Collected Waste', 'Household – Total Waste', 'Household - Waste not Sent for Recycling',
+'Non-household – Total Waste', 'Non-household – Waste not Sent for Recycling', 'Local Authority Collected Waste - Not Sent for Recycling'];
+var optionsforMap2 = ['Hazardous landfill', 'Non-hazardous landfill', 'Inert landfill', 'Incineration with energy recovery', 'Incineration without energy recovery'];
+
+
+// for toggling display the filter button
 const preferences = (state = {display: 'none', position: 'absolute', width: '100%', zIndex: 999}, action) => {
         switch (action.type) {
                 case 'preferencesButtonClicked':
@@ -56,172 +67,120 @@ const preferences = (state = {display: 'none', position: 'absolute', width: '100
         }
 }
 
-const feedstock = (
+//for displaying filters 
+const wasteInformationOptions = (
         state = {
-        Glass: { display: 'none', width: '100%'},
-        'Paper & Card': { display: 'none', width: '100%'},
-        Metal: { display: 'none', width: '100%'},
-        Organic: { display: 'none', width: '100%'},
-        Wood: { display: 'none', width: '100%'},
-        WEEE: { display: 'none', width: '100%'},
-        Batteries: { display: 'none', width: '100%'},
-        Tyres: { display: 'none', width: '100%'},
-        Soil: { display: 'none', width: '100%'},
-        Plasterboard: { display: 'none', width: '100%'},
-        Oil:{ display: 'none', width: '100%'},
-        'Other Materials': { display: 'none', width: '100%'},
-        'Co-mingled': { display: 'none', width: '100%'},
-        Textiles: { display: 'none', width: '100%'},
-        Furniture: { display: 'none', width: '100%'},
-        Composite: { display: 'none', width: '100%'},
-        Plastic: { display: 'none', width: '100%'},
-        Rubble: { display: 'none', width: '100%'},
-        Paint: { display: 'none', width: '100%'},
+        'Total Local Authority Collected Waste': { display: 'none', width: '100%'},
+        'Household – Total Waste': { display: 'none', width: '100%'},
+        'Household - Waste not Sent for Recycling': { display: 'none', width: '100%'},
+        'Non-household – Total Waste': { display: 'none', width: '100%'},
+        'Non-household – Waste not Sent for Recycling': { display: 'none', width: '100%'},
+        'Local Authority Collected Waste - Not Sent for Recycling': { display: 'none', width: '100%'},
+        'Hazardous landfill': {display: 'none', width: '100%'},
+        'Non-hazardous landfill': {display: 'none', width: '100%'},
+        'Inert landfill': {display: 'none', width: '100%'},
+        'Incineration with energy recovery': {display: 'none', width: '100%'},
+        'Incineration without energy recovery': {display: 'none', width: '100%'},
         donebutton: {display: 'none'},
-        materialsSelected: ['None Selected' ],
+        selectedOption: 'None Selected',
+        materialsSelected: 'None Selected',
         buttonDisabled: true,
         }, action) => {
-
+        // to reset the display of all filters, a has been defined
         let a = {
-        Glass: { display: 'none', width: '100%'},
-        'Paper & Card': { display: 'none', width: '100%'},
-        Metal: { display: 'none', width: '100%'},
-        Organic: { display: 'none', width: '100%'},
-        Wood: { display: 'none', width: '100%'},
-        WEEE: { display: 'none', width: '100%'},
-        Batteries: { display: 'none', width: '100%'},
-        Tyres: { display: 'none', width: '100%'},
-        Soil: { display: 'none', width: '100%'},
-        Plasterboard: { display: 'none', width: '100%'},
-        Oil:{ display: 'none', width: '100%'},
-        'Other Materials': { display: 'none', width: '100%'},
-        'Co-mingled': { display: 'none', width: '100%'},
-        Textiles: { display: 'none', width: '100%'},
-        Furniture: { display: 'none', width: '100%'},
-        Composite: { display: 'none', width: '100%'},
-        Plastic: { display: 'none', width: '100%'},
-        Rubble: { display: 'none', width: '100%'},
-        Paint: { display: 'none', width: '100%'},
+
+        'Total Local Authority Collected Waste': { display: 'none', width: '100%'},
+        'Household – Total Waste': { display: 'none', width: '100%'},
+        'Household - Waste not Sent for Recycling': { display: 'none', width: '100%'},
+        'Non-household – Total Waste': { display: 'none', width: '100%'},
+        'Non-household – Waste not Sent for Recycling': { display: 'none', width: '100%'},
+        'Local Authority Collected Waste - Not Sent for Recycling': { display: 'none', width: '100%'},
+        'Hazardous landfill': {display: 'none', width: '100%'},
+        'Non-hazardous landfill': {display: 'none', width: '100%'},
+        'Inert landfill': {display: 'none', width: '100%'},
+        'Incineration with energy recovery': {display: 'none', width: '100%'},
+        'Incineration without energy recovery': {display: 'none', width: '100%'},
         donebutton: {display: 'none'},
-        materialsSelected: ['None Selected' ],
+        selectedOption: 'None Selected',
+        materialsSelected:'None Selected',
+        current_layer: '',
         buttonDisabled: true,
         };
 
         switch (action.type) {
-                case 'changeInFeedstock':
+                case 'changeInOptions':
 
-                        _.forEach(action.materials, function(value) {
-                                a[value] = {display: 'block', width: '90%', marginTop: '20px'};
-                        });
-                        a.materialsSelected = action.materials;
+                        a[action.selectedOption] = {display: 'block', width: '90%', marginTop: '20px'};    
+                        a.selectedOption = action.selectedOption;
                         a.donebutton = {display: 'block'};
                         a.buttonDisabled = false;
-
-
+                        if (optionsforMap1.includes(action.selectedOption))// changing map depending on option selected
+                        {
+                                a.current_layer = geojsonlayer1;
+                        }
+                        else 
+                        {       
+                                a.current_layer = geojsonlayer2;
+                        }
+                        a.materialsSelected = state.materialsSelected;
                         return a;
+                case 'changeInFeedstock':
+                        state.materialsSelected = action.materials;
+                        return state;
+
                 default:
                         return state
         }
 }
 
+
 const filterValues = (
         state = {
-                Glass: 0,
-                'Paper & Card': 0,
-                Metal: 0,
-                Organic: 0,
-                Wood: 0,
-                WEEE: 0,
-                Batteries: 0,
-                Tyres: 0,
-                Soil: 0,
-                Plasterboard: 0,
-                Oil: 0,
-                'Other Materials': 0,
-                'Co-mingled': 0,
-                Textiles: 0,
-                Furniture: 0,
-                Composite: 0,
-                Plastic: 0,
-                Rubble: 0,
-                Paint: 0,
+                'Total Local Authority Collected Waste': 0,
+                'Household – Total Waste': 0,
+                'Household - Waste not Sent for Recycling': 0,
+                'Non-household – Total Waste': 0,
+                'Non-household – Waste not Sent for Recycling': 0,
+                'Local Authority Collected Waste - Not Sent for Recycling': 0,
+                'Hazardous landfill': 0,
+                'Non-hazardous landfill': 0,
+                'Inert landfill': 0,
+                'Incineration with energy recovery': 0,
+                'Incineration without energy recovery': 0
 }, action) => {
       
         let a = state;
         switch (action.type) {
-                case 'GlassMinimumValueChanged':
-                        a['Glass'] = action.value;
+                case 'Total Local Authority Collected WasteMinimumValueChanged':
+                        a['Total Local Authority Collected Waste'] = action.value;
                         return a;
 
-                case 'Paper&CardMinimumValueChanged':
-                        a['Paper & Card'] = action.value;
+                case 'Local Authority Collected Waste - Not Sent for RecyclingMinimumValueChanged':
+                        a['Local Authority Collected Waste - Not Sent for Recycling'] = action.value;
                         return a;
 
-                case 'MetalMinimumValueChanged':
-                        a['Metal'] = action.value;
+                case 'Household – Total WasteMinimumValueChanged':
+                        a['Household – Total Waste'] = action.value;
                         return a;
 
-                case 'OrganicMinimumValueChanged':
-                        a['Organic'] = action.value;
+                case 'Household - Waste not Sent for RecyclingMinimumValueChanged':
+                        a['Household - Waste not Sent for Recycling'] = action.value;
                         return a;
-                case 'WoodMinimumValueChanged':
-                        a['Wood'] = action.value;
+                case 'Non-household – Waste not Sent for RecyclingMinimumValueChanged':
+                        a['Non-household – Waste not Sent for Recycling'] = action.value;
                         return a;
-
-                case 'WEEEMinimumValueChanged':
-                        a['WEEE'] = action.value;
+                case 'Hazardous landfill':
+                        a['Hazardous landfill'] = action.value;
                         return a;
-
-                case 'BatteriesMinimumValueChanged':
-                        a['Batteries'] = action.value;
-                        return a;
-
-                case 'TyresMinimumValueChanged':
-                        a['Tyres'] = action.value;
-                        return a;
-
-                case 'SoilMinimumValueChanged':
-                        a['Soil'] = action.value;
-                        return a;
-
-                case 'PlasterboardMinimumValueChanged':
-                        a['Plasterboard'] = action.value;
-                        return a;
-
-                case 'OilMinimumValueChanged':
-                        a['Oil'] = action.value;
-                        return a;
-
-                case 'OtherMaterialMinimumValueChanged':
-                        a['Other Materials'] = action.value;
-                        return a;
-
-                case 'Co-mingledMinimumValueChanged':
-                        a['Co-mingled'] = action.value;
-                        return a;
-
-                case 'TextilesMinimumValueChanged':
-                        a['Textiles'] = action.value;
-                        return a;
-                case 'FurnitureMinimumValueChanged':
-                        a['Furniture'] = action.value;
-                        return a;
-                case 'CompositeMinimumValueChanged':
-                        a['Composite'] = action.value;
-                        return a;
-
-                case 'PlasticMinimumValueChanged':
-                        a['Plastic'] = action.value;
-                        return a;
-
-                case 'RubbleMinimumValueChanged':
-                        a['Rubble'] = action.value;
-                        return a;
-
-                case 'PaintMinimumValueChanged':
-                        a['Paint'] = action.value;
-                        return a;
-
+                case 'Non-hazardous landfill':
+                        a['Non-hazardous landfill'] = action.value;
+                case 'Inert landfill':
+                        a['Inert landill'] = action.value;
+                case 'Incineration with energy recovery':
+                        a['Incineration with energy recovery'] = action.value;
+                case 'Incineration without energy recovery':
+                        a['Incineration without energy recovery'] = action.value;
+              
                 default:
                         return a;
         }
@@ -229,37 +188,66 @@ const filterValues = (
 
 }
 
+const tableState = (
+        state = {
+                data: [ {'Facility Name' : '', 'Waste Stream Type': '', 'Facility Type': ''}]
+        }, action ) => {
+
+        switch (action.type) {
+                case 'MapClicked':
+                        let holder = []
+                        let district = action.props.Name;
+                        let a = operators_data[district];
+                        _.forEach(a, function(value, key) {
+                                holder.push(value);
+                        });
+                        state.data = holder;
+                        console.log(state);
+                        return state;
+                default:
+                        return state;
+
+        }
+}
+
+function mapChange() {
+        let {current_layer} = store.getState().wasteInformationOptions;// to get what the current layer should be
+        mymap.removeLayer(geojson);
+        geojson = current_layer.addTo(mymap);
+        
+}
+
 
 
 var legendValues = {
-        Glass: [0, 100, 1000, 5000],
-        'Paper & Card': [0, 100, 1000, 10000],
-        'Metal': [0, 100, 1000, 5000],
-        Organic: [0, 1000, 10000, 25000],
-        Wood: [0, 1000, 10000, 25000],
-        WEEE: [0, 100, 1000, 5000],
-        Batteries: [0, 50 ,100, 250],
-        Tyres: [0, 50, 100, 250],
-        Soil: [0, 100, 500, 1000],
-        Plasterboard: [0, 100, 500, 1000],
-        Oil: [0, 10, 25, 100],
-        'Other Materials': [0, 100, 500, 1000],
-        Textiles: [0, 100, 500, 1000],
-        'Co-mingled': [0, 1000, 10000, 25000],
-        'Plastic': [0, 100, 500, 1000],
-        Furniture: [0, 50, 100, 500],
-        Composite: [0, 50, 100,500],
-        Rubble: [0, 1000, 10000, 25000],
-        Paint: [0, 10, 50, 100]
+        'Total Local Authority Collected Waste': [0, 100, 1000, 5000],
+        'Household – Total Waste': [0, 100, 1000, 10000],
+        'Household - Waste not Sent for Recycling': [0, 100, 1000, 5000],
+        'Non-household – Total Waste': [0, 1000, 10000, 25000],
+        'Non-household – Waste not Sent for Recycling': [0, 1000, 10000, 25000],
+        'Local Authority Collected Waste - Not Sent for Recycling': [0, 100, 1000, 5000],     
+        'Hazardous landfill': [0, 1000, 2500, 5000],
+        'Non-hazardous landfill': [0, 50000, 100000, 200000],
+        'Inert landfill': [0, 125000, 250000,375000],
+        'Incineration with energy recovery': [0, 125000, 250000,375000],
+        'Incineration without energy recovery': [0, 150000, 300000,450000]
 }
 
+
 let reducers = combineReducers({
-        feedstock: feedstock,
+        wasteInformationOptions: wasteInformationOptions,
         preferences: preferences,
         filterValues: filterValues,
+        tableState: tableState
 });
 
-//const store = createStore(reducers);
+
+
+const store=createStore(reducers);
+
+
+
+
 class Parent extends React.Component {
 
         constructor(props) {
@@ -313,9 +301,12 @@ class Parent extends React.Component {
 
                   return (
                         <div style={{marginTop: '50px', marginLeft: '100px', marginRight:'50px'}}>
+                        <Grid columns={1}>
+                        <Grid.Row stretched>        
                         <Grid columns={2} divided>
                                 <Grid.Row stretched>
                                         <Grid.Column>
+                                                
                                         <Segment>
                                                 <div id='mapid'  style={{margin: 'auto', width: '90%', borderRadius: '15px'}}></div>
                                         </Segment>
@@ -323,56 +314,67 @@ class Parent extends React.Component {
                                         <Grid.Column id='dashboard'>
 	                                        
                                                         <div>
-                                                                <div style={{width: '90%', display:'inline-block'}}>
-                                                                <MaterialMultipleSelection store={this.props.store} changeMaterial={ this.changeMaterialOption}/>
+                                                                <div style={{width: '80%', display:'inline-block'}}>
+                                                                <WasteInformationOptionsSelection store={this.props.store} changeMaterial={ this.changeMaterialOption}/>
 
                                                                 </div>
-                                                                <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
+                                                                <div style={{positon: 'relative', display:'inline-block'}}>
                                                                      <Popup
-                                                                        trigger={<Button icon='help circle outline' />}
-                                                                        content="The map will display the quantity of feedstock being collected by each local authority. If multiple feedstocks are
-                                                                        selected, the map will display those districts where the feedstocks selected are collected and not collected."
+                                                                        trigger={<Button icon='help circle outline big' />}
+                                                                        content="The map will display the quantity of feedstock being recycled/reused by each local authority. If multiple feedstocks are
+                                                                        selected, the map will display those districts where the feedstocks selected are recycled/reused and not recycled/reused."
                                                                         basic
                                                                 />    
                                                                 <ButtonExampleIcon store={this.props.store} />
+                                                                <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
+                                                                     
+                                                                                <Popup
+                                                                                trigger={<Button icon='help circle outline big' />}
+                                                                                content="By clicking on the settings button, the local authorities can be filtered based on how many tonnes of feedstock are recycled/reused in a year."
+                                                                                basic
+                                                                                />    
+                                                                        </div>
                                                                 </div>
                                                                 <div style={this.props.store.getState().preferences}>
+                                                                        
                                                                         <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
-                                                                        <Popup
-                                                                        trigger={<Button icon='help circle outline' />}
-                                                                        content="The local authorities can be filtered based on how many tonnes of feedstock are required in a year. If only one feedstock is selected,
-                                                                        the local authorities not meeting the criteria are represented by the color showing the material is not collected."
-                                                                        basic
-                                                                />    
                                                                 </div>
 
 
                                                         </div>
-                                                
-                                                <Segment> 
-                                                        <svg className="linechart"></svg>
-                                                        <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
-                                                                <Popup
-                                                                        trigger={<Button icon='help circle outline' />}
-                                                                        content="The line chart will show data for the first material selected."
-                                                                        basic
-                                                                />
-                                                        </div>
+                                                <MaterialMultipleSelection store={this.props.store} />
+                                                <Segment.Group horizontal compact>
+                                                                        <Segment>
+                                                                        <svg className="chart1"></svg>
+                                                                        
+                                                                </Segment>
+                                                               <Segment>
+                                                                        <svg className="chart2"></svg>
+                                                                        
+                                                                </Segment>
+                                                         
+                                                </Segment.Group>
+                                                <Segment.Group horizontal compact>
+                                                        <Segment>
+                                                                <svg className="linechart"></svg>
+                                                                
+                                                        </Segment>
 
-                                                </Segment>
-                                                <Segment>
-                                                          <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
-                                                                <Popup
-                                                                        trigger={<Button icon='help circle outline' />}
-                                                                        content="The bar chart will show data for the first material selected."
-                                                                        basic
-                                                                />
-                                                        </div>
-                                                        <svg className="barchart"></svg>
-                                                     
-                                                </Segment>
+                                                        <Segment>
+                                                                <svg className="chart3"></svg>
+                                                                
+                                                        </Segment>
+                                                </Segment.Group>
                                         </Grid.Column>
                                 </Grid.Row>
+                        </Grid>
+                        </Grid.Row>
+                        <Grid.Row>
+                                <div style={{margin:'auto', width:'70%'}}>
+                                        <Table store={this.props.store} />
+                                </div>
+                                
+                        </Grid.Row>
                         </Grid>
                         </div>
                   )
@@ -380,14 +382,11 @@ class Parent extends React.Component {
 }
 
 
-const store=createStore(reducers);
+
 
 ReactDOM.render(<Parent store={store} />, document.getElementById('app'));
 
 //ReactDOM.render(<Parent />, document.getElementById('app'));
-
-
-
 mymap = L.map('mapid').setView([54.36,-2.4],6 );
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}',
 {
@@ -397,27 +396,30 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={
         accessToken: 'pk.eyJ1IjoibWF0aGV3cGsxMyIsImEiOiJjajR6YXBsZ3EwZTM2MndtZDFtcHN4ajBmIn0.3qQyNjJTtkkXr_pqLRp37g'
 }).addTo(mymap);
 
-fetch('/maps/EnglandApr15Jan16/').then(function(response) {
+fetch('/maps/annualLAwithMap/').then(function(response) {
         response.json().then(function(response1) {
-                geoJsonTopology = topojson.feature(response1, response1.objects.yearlydataappendedtomap);
-                geojson =  L.geoJson(geoJsonTopology, {onEachFeature:onEachFeature}).addTo(mymap);
+                geojsonTopology1 = topojson.feature(response1, response1.objects.annualLAwithMap);
+                geojsonlayer1 =  L.geoJson(geojsonTopology1, {onEachFeature:onEachFeature})
+                geojson1 = geojsonlayer1.addTo(mymap);
+                //mymap.removeLayer(geojsonlayer1);
+                //geojson = geojsonlayer1.addTo(mymap);
+                 geojson =geojson1;
+        });
+});
+fetch('/maps/cleanedDataCountyCouncilMix/').then(function(response) {
+        response.json().then(function(response1) {
+                geojsonTopology2 = topojson.feature(response1, response1.objects.cleanedDataCountyCouncilMix);
+                geojsonlayer2 =  L.geoJson(geojsonTopology2, {onEachFeature:onEachFeature});
         });
 });
 
-/*
-fetch('/maps/EnglandYearly/').then(function(response) {
-        response.json().then(function(response1) {
-                geoJsonTopology = topojson.feature(response1, response1.objects.MapYearly);
-                console.log(geoJsonTopology);
-                geojson =  L.geoJson(geoJsonTopology, {onEachFeature:onEachFeature}).addTo(mymap);
-        });
-});
-*/
+
 fetch('/quarterly-data/Q1').then(function(response) {
         response.text().then(function(response1) {
                 Q1 = d3.csvParse(response1);
         });
 });
+
 
 fetch('/quarterly-data/Q2').then(function(response) {
         response.text().then(function(response1) {
@@ -495,9 +497,18 @@ fetch('/reprocessing-data/Q4').then(function(response) {
 fetch('/reprocessing-data/FullYear').then(function(response) {
         response.json().then(function(response1) {
                 fullYearr = response1;
-
+                     
         });
 });
+
+fetch('/operators-data/Jan17').then(function(response) {
+        
+        response.json().then(function(response1) {
+                operators_data = response1;          
+        })
+})
+
+
 
 var clicked = "";
 function changeColoronClick(e) {
@@ -552,9 +563,15 @@ function resetHighlight(e) {
 
 function clickFeature(e) {
         var layer = e.target;
+     //   chart3Update(layer.feature.properties);
         changeColoronClick(e);
+        chart1Update(layer.feature.properties);
+        chart2Update(layer.feature.properties);
+        chart3Update(layer.feature.properties);
         linechartUpdate(layer.feature.properties);
-        barchartUpdate(layer.feature.properties);
+        store.dispatch({ type: 'MapClicked',  props:layer.feature.properties});
+        tableUpdate(layer.feature.properties);
+
 }
 
 
@@ -578,74 +595,27 @@ function getColor(d, thresholdValues, minimumValue = 0) {
                 '#ffffcc';
 }
 
-function getColorFilter(d, a, materialsSelected) {
-
-        let x = [];
-       _.forEach(materialsSelected, function(value) {
-                if ( d[value] > a[value]) {
-                        x.push(true);
-                }
-                else {
-                        x.push(false);
-                }
-       });
-
-       let y = _.reduce(x, function(accumulator, n) {
-               return accumulator && n;
-       }, true);
-
-        if (y) {
-                return '#1b9e77';
-        }
-        else {
-                return '#7570b3';
-        }
-
-}
 
 function style(feature) {
 
         //make two functions, one for single selected value, one for multiple values
 
         let a = store.getState()
-        let { materialsSelected }= a.feedstock;
+        let { selectedOption }= a.wasteInformationOptions;
         var b = feature.properties;
-        if (materialsSelected.length == 1) {
-
-                return {
-                        fill: true,
-                        fillColor:  getColor(b[materialsSelected[0]], legendValues[materialsSelected[0]], a.filterValues[materialsSelected[0]]),
-                        weight: 0.75,
-                        opacity: 1,
-                        color: 'white',
-                        dashArray: '3',
-                        fillOpacity: 0.7
-                }
+        return {
+                fill: true,
+                fillColor:  getColor(b[selectedOption], legendValues[selectedOption], a.filterValues[selectedOption]),
+                weight: 0.75,
+                opacity: 1,
+                color: 'white',
+                dashArray: '3',
+                fillOpacity: 0.7
         }
+        
 
-        else if (materialsSelected.length > 1) {
-                return{
-                        fill: true,
-                        fillColor: getColorFilter(b, a.filterValues, materialsSelected),
-                        weight: 0.75,
-                        opacity: 1,
-                        color: 'white',
-                        dashArray: '3',
-                        fillOpacity: 0.7
 
-                }
-        }
-
-        else {
-                return {
-                        fill: false,
-                        weight: 0.75,
-                        opacity: 1,
-                        color: 'white',
-                        dashArray: '3',
-                        fillOpacity: 0.7
-                }
-        }
+     
 
 }
 
@@ -661,15 +631,14 @@ info.onAdd = function (map) {
 
 // method that we will use to update the control based on feature properties passed
 info.update = function (props) {
-    let state = store.getState().feedstock.materialsSelected;
+    let state = store.getState().wasteInformationOptions.selectedOption;
     let inhtml = '';
   
     if (props) {
             inhtml += '<h5>' + props['Name'] + '</h5>';
-            _.forEach(state, function(value) {
-                inhtml +=  value + " " + props[value] + ' tonnes/year' + '<br>';
-            }
-            )
+            inhtml +=  state + " " + props[state] + ' tonnes/year' + '<br>';
+            
+            
     }
     else {
             inhtml = 'Hover over a district';
@@ -711,29 +680,23 @@ legendmap.onAdd = function (map) {
 
 legendmap.update = function (props) {
 
-        let state;
-
+        let option;
         if (props) {
     // loop through our density intervals and generate a label with a colored square for each interval
-                state = store.getState().feedstock.materialsSelected;
-              
-                if (state.length == 1) {
+                option = store.getState().wasteInformationOptions.selectedOption;
+                this.div.innerHTML = ''; 
+                if (option != 'None Selected') {
 
-                        let grades = legendValues[state[0]];
-                        this.div.innerHTML = '<i style="background:' + '#ffffcc' + '"></i>' + state[0] + ' Not collected' +'<br>';
-
-
+                        let grades = legendValues[option];
                         for (var i = 0; i < grades.length; i++) {
                                 this.div.innerHTML +=
                                 '<i class="legendIcon" style="background:' + getColor(grades[i] + 1, grades) + '"></i> ' +
                                 grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] + '<br>' : '+');
                         }
                       
-                //     return this.div;
+                
                 }
-                else if (state.length > 1) {
-                        this.div.innerHTML = '<i style="background:#1b9e77"></i>' + 'Meets criteria' + '<br>' + '<i style="background:#7570b3"></i>' + 'Does not meet criteria';
-                }
+              
                 else {
 
                         this.div.innerHTML = 'Select Feedstock';
@@ -745,6 +708,7 @@ legendmap.update = function (props) {
 
                 this.div.innerHTML = 'Select Feedstock';
         }
+             return this.div;
 
 }
 
@@ -755,11 +719,277 @@ legendmap.addTo(mymap);
 
 
  
+var data1 = [ {collected_source: 'Total Local Authority Collected Waste', val: 1}, {collected_source: 'Household – Total Waste', val: 3},
+              {collected_source: 'Household - Waste not Sent for Recycling', val: 5}, {collected_source: 'Local Authority Collected Waste - Not Sent for Recycling', val: 8} ]
+var margin = margin = {top: 20, right:50, bottom: 30, left: 50},
+        width = 450 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+var chart1 = d3.select(".chart1")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+var ychart1 = d3.scaleLinear()
+        .domain([0, 20])
+        .range([height, 0]);
+
+var xchart1 = d3.scaleBand()
+        .domain(['Total Local Authority Collected Waste', 'Household – Total Waste', 'Household - Waste not Sent for Recycling',
+        'Local Authority Collected Waste - Not Sent for Recycling'])
+        .range([0, width-100])
+        .paddingInner(0.1)
+        .paddingOuter(0)
+        .round(false);
+
+var xAxis1 = d3.axisBottom()
+        .scale(xchart1); 
+
+chart1.append("g")
+        .attr("class", "xAxis1")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis1)
+        .selectAll(".tick text")
+        .call(wrap, 60);
+
+let yAxis1 = d3.axisLeft()
+            .scale(ychart1);
+
+
+chart1.append("g")
+        .attr("class", "yAxis1")
+        .call(yAxis1);
+
+
+var barwidth1 = width / (data1.length);
+
+var bar1 = chart1.selectAll(".bar1")
+      .data(data1)
+    .enter().append("rect")
+      .attr("class", "bar1")
+      .attr("x", function(d) {  return xchart1(d.collected_source)})
+      .attr("y", function(d) { return ychart1(d.val); })
+      .attr("height", function(d) { return height - ychart1(d.val); })
+      .attr("width", xchart1.bandwidth())
+      .attr("fill", "#c4dbe0");
+
+
+
+// wrap function taken from https://bl.ocks.org/mbostock/7555321
+function wrap(text, width) {
+  text.each(function() {
+    var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+    while (word = words.pop()) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node().getComputedTextLength() > width) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+      }
+    }
+  });
+}
+
+
+
+
+        chart1.append("text")
+        .attr("class", "titlelinechart1")
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline")  
+        .text("LA and Household Waste" );       
+
+chart1.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes");      
+
+
+function chart1Update(props) {
+
+        let a = store.getState();
+        let {selectedOption } = a.wasteInformationOptions;
+       // let primaryMaterial = materialsSelected[0];
+       // let district = props.Name;
+        if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+        {
+                chart1.selectAll(".bar1")
+                .attr("fill", "none");
+                return;
+        }
+
+        data1 = [ {collected_source: 'Total Local Authority Collected Waste', val: props['Total Local Authority Collected Waste']},
+                {collected_source: 'Household – Total Waste', val: props['Household – Total Waste']},
+              {collected_source: 'Household - Waste not Sent for Recycling', val: props['Household - Waste not Sent for Recycling']}, 
+              {collected_source: 'Local Authority Collected Waste - Not Sent for Recycling', val: props['Local Authority Collected Waste - Not Sent for Recycling']} ]
+
+        let vals = [ data1[0].val, data1[1].val, data1[2].val, data1[3].val ];
+        ychart1 = d3.scaleLinear()
+        .domain([0, _.max(vals) * 1.3])
+        .range([height, 0]);  
+
+        yAxis1 = d3.axisLeft()
+            .scale(ychart1);
+
+        chart1.select(".yAxis1")
+                .transition()
+                .duration(1000)
+                .call(yAxis1);
+
+        chart1.selectAll(".bar1")
+        .data(data1)
+        .transition()
+        .attr("x", function(d) {  return xchart1(d.collected_source)})
+        .attr("y", function(d) { return ychart1(d.val); })
+        .attr("height", function(d) { return height - ychart1(d.val); })
+        .attr("width", xchart1.bandwidth()) 
+        .attr("fill", "#c4dbe0");
+}
+
+
+//Barchar 2
+
+ 
+var data2 = [ {collected_source: 'Non-household – Total Waste', val: 7}, 
+              {collected_source: 'Non-household – Waste not Sent for Recycling', val: 4} ]
+var chart2 = d3.select(".chart2")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+var ychart2 = d3.scaleLinear()
+        .domain([0, 20])
+        .range([height, 0]);
+
+var xchart2 = d3.scaleBand()
+        .domain(['Non-household – Total Waste',
+         'Non-household – Waste not Sent for Recycling'])
+        .range([0, width-100])
+        .paddingInner(0.1)
+        .paddingOuter(0)
+        .round(false);
+
+var xAxis2 = d3.axisBottom()
+        .scale(xchart2); 
+
+chart2.append("g")
+        .attr("class", "xAxis2")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis2)
+        .selectAll(".tick text")
+        .call(wrap, 60);
+
+let yAxis2 = d3.axisLeft()
+            .scale(ychart2);
+
+
+chart2.append("g")
+        .attr("class", "yAxis2")
+        .call(yAxis2);
+
+
+var barwidth2 = width / (2*data2.length);
+
+var bar2 = chart2.selectAll(".bar2")
+      .data(data2)
+    .enter().append("rect")
+      .attr("class", "bar2")
+      .attr("x", function(d) {  return 34 + xchart2(d.collected_source)})
+      .attr("y", function(d) { return ychart2(d.val); })
+      .attr("height", function(d) { return height - ychart2(d.val); })
+      .attr("width", (xchart2.bandwidth()/2))
+      .attr("fill", "#00a8a8");
+
+
+        chart2.append("text")
+        .attr("class", "titlelinechart2")
+        .text("Non-household Waste" )
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "16px") 
+        .style("text-decoration", "underline");
+
+chart2.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes");      
+
+
+function chart2Update(props) {
+
+
+        let a = store.getState();
+        let {selectedOption } = a.wasteInformationOptions;
+       // let primaryMaterial = materialsSelected[0];
+       // let district = props.Name;
+
+         if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+        {
+                chart2.selectAll(".bar2")
+                .attr("fill", "none");
+                return;
+        }
+
+
+        data2 = [ {collected_source: 'Non-household – Total Waste', val: props['Non-household – Total Waste']}, 
+              {collected_source: 'Non-household – Waste not Sent for Recycling', val: props['Non-household – Waste not Sent for Recycling']} 
+               ]
+
+        let vals = [ data2[0].val, data2[1].val ];
+        ychart2 = d3.scaleLinear()
+        .domain([0,_.max(vals) * 1.3])
+        .range([height, 0]);  
+
+        yAxis2 = d3.axisLeft()
+            .scale(ychart2);
+
+        chart2.select(".yAxis2")
+                .transition()
+                .duration(1000)
+                .call(yAxis2);
+
+                chart2.selectAll(".bar2")
+                .data(data2)
+                .transition()
+      .attr("x", function(d) {  return xchart2(d.collected_source)})
+      .attr("y", function(d) { return ychart2(d.val); })
+      .attr("height", function(d) { return height - ychart2(d.val); })
+      .attr("width", xchart2.bandwidth()/2);
+
+     
+  
+}
+
+
+
 var data = [ {period: "Apr14 - Jun14", val: 1}, {period: "Jul14 - Sep14", val: 3}, {period: "Oct14 - Dec14", val: 5}, {period: "Jan15 - Mar15", val: 7}, {period: "Apr15 - Jun15", val: 4}, {period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
 
-var margin = {top: 20, right:40, bottom: 30, left: 70},
-        width = 700 - margin.left - margin.right,
-        height = 300 - margin.top - margin.bottom;
+
 var linechart = d3.select(".linechart")
         .attr("width", width +  margin.left + margin.right)
         .attr("height", height + margin.bottom + margin.top)
@@ -836,11 +1066,11 @@ linechart.append("g")
 linechart.selectAll("circle")
     .data(data)
   .enter().append("circle")
-    .attr("class", "circle");
-    //.attr("cx", function(d) { return xline(d.period); })
-    //.attr("cy", function(d) { return yline(d.val); })
-    //.attr("r", 4);
-    //.attr("fill", "steelblue");
+    .attr("class", "circle")
+    .attr("cx", function(d) { return xline(d.period); })
+    .attr("cy", function(d) {  return yline(d.val); })
+    .attr("r", 4);
+   // .attr("fill", "steelblue")
 
         linechart.append("text")
         .attr("class", "titlelinechart")
@@ -849,7 +1079,7 @@ linechart.selectAll("circle")
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
         .style("text-decoration", "underline")  
-        .text("Quarterly Variation in Material Collected" );
+        .text("Quarterly Variation in Material Recycled" );
 
 linechart.append("text")
       .attr("transform", "rotate(-90)")
@@ -860,12 +1090,26 @@ linechart.append("text")
       .text("Tonnes");      
 
 
+ 
+
+
 function linechartUpdate(props) {
 
+    
 
         let a = store.getState();
-        let { materialsSelected } = a.feedstock;
-        let primaryMaterial = materialsSelected[0];
+        let { materialsSelected } = a.wasteInformationOptions;
+         let {selectedOption } = a.wasteInformationOptions;
+
+             if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+        {
+                linechart.selectAll("path")
+                .attr("stroke", "none");
+                return;
+        }
+
+
+        let primaryMaterial = materialsSelected;
         let district = props.Name;
         let q1 = _.find(Q1, function(o) { return o.Name == district; });
         let q2 = _.find(Q2, function(o) { return o.Name == district; });
@@ -876,7 +1120,7 @@ function linechartUpdate(props) {
         let preAprilq2 = _.find(preAprilQ2, function(o) { return o.Name == district; });
         let preAprilq3 = _.find(preAprilQ3, function(o) { return o.Name == district; });
         let preAprilq4 = _.find(preAprilQ4, function(o) { return o.Name == district; });
-        console.log(preAprilq1);
+
         let arrayofquarterlydata = [parseFloat(q1[primaryMaterial]), parseFloat(q2[primaryMaterial]), parseFloat(q3[primaryMaterial]), parseFloat(q4[primaryMaterial]),
                                         parseFloat(preAprilq1[primaryMaterial]), parseFloat(preAprilq2[primaryMaterial]), parseFloat(preAprilq3[primaryMaterial]), parseFloat(preAprilq4[primaryMaterial])];
         let quarterlydata = [ { period: "Apr14 - Jun14", val: preAprilq1[primaryMaterial]}, { period: "Jul14 - Sep14", val: preAprilq2[primaryMaterial]}, 
@@ -890,8 +1134,7 @@ function linechartUpdate(props) {
         .text("Quarterly Variation in " + primaryMaterial + " Collected in " + props.Name );
 
 
-        console.log(arrayofquarterlydata + "\n" + quarterlydata);
-
+       
         yline = d3.scaleLinear()
             .domain([0, _.max(arrayofquarterlydata) * 1.3])
             .range([height,0])
@@ -911,6 +1154,8 @@ function linechartUpdate(props) {
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
 
+     //  console.log(arrayofquarterlydata);
+      //  console.log(_.max(arrayofquarterlydata));
         linechart.selectAll("circle")
             .data(quarterlydata)
             .transition()
@@ -929,110 +1174,74 @@ function linechartUpdate(props) {
 }
 
 
+var data3 = [ {collected_source: 'Hazardous landfill', val: 7}, 
+              {collected_source: 'Non-hazardous landfill', val: 4},
+              {collected_source: 'Inert landfill', val:3},
+              {collected_source: 'Incineration with energy recovery', val: 7}, 
+              {collected_source: 'Incineration without energy recovery', val: 4}
+            ]
+var chart3 = d3.select(".chart3")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-margin = {top: 20, right:230, bottom: 30, left: 70},
-width = 900 - margin.left - margin.right,
-height = 300 - margin.top - margin.bottom;
 
-var barchart = d3.select(".barchart")
-                .attr("width", width +  margin.left + margin.right)
-                .attr("height", height + margin.bottom + margin.top)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-var ybar = d3.scaleLinear()
-        .domain([0,20])
+var ychart3 = d3.scaleLinear()
+        .domain([0, 20])
         .range([height, 0]);
 
-
-var data = [ {period: "Apr15 - Jun15", val: 4},{period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
-
-var xbar = d3.scaleBand()
-        .domain(["Apr15 - Jun15", "Jul15 - Sep15", "Oct15 - Dec15", "Jan16 - Mar16"])
+var xchart3 = d3.scaleBand()
+        .domain(['Hazardous landfill',
+          'Non-hazardous landfill', 'Inert landfill',  'Incineration with energy recovery',  'Incineration without energy recovery'])
         .range([0, width-100])
         .paddingInner(0.1)
         .paddingOuter(0)
         .round(false);
 
-var newxbar =  d3.scaleBand()
-        .domain([0, 1, 2, 3])
-        .range([0, width-100])
-        .paddingInner(0.1)
-        .paddingOuter(0)
-        .round(false);
-/*
-barchart.selectAll(".bar1")
-      .data(data1)
-      .enter().append("rect")
-      .attr("class", "bar1")
-      .attr("x", function(d) { return xbar(d.period); })
-      .attr("y", function(d) { return ybar(d.val); })
-      .attr("height", function(d) { return height - ybar(d.val); })
-      .attr("width", xbar.bandwidth());
-    //  .attr("fill", "steelblue");
-*/
+var xAxis3 = d3.axisBottom()
+        .scale(xchart3); 
 
-let yAxisbar = d3.axisLeft()
-            .scale(ybar);
-
-var xAxisbar = d3.axisBottom()
-        .scale(xbar); 
-
-var z = d3.scaleOrdinal()
-    .domain(["Recycling", "Reuse", "Windrow or other composting", "In vessel composting", "Anaerobic or Aerobic Digestion Segregated", "Exported (Recycling)", "Exported (Reuse)"])
-    .range(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"]);
-
-
-
-barchart.append("g")
-        .attr("class", "yaxisbar")
-        .call(yAxisbar);
-
-barchart.append("g")
-        .attr("class", "xaxisbar")
+chart3.append("g")
+        .attr("class", "xAxis3")
         .attr("transform", "translate(0," + height + ")")
-        .call(xAxisbar);
+        .call(xAxis3)
+        .selectAll(".tick text")
+        .call(wrap, 60);
 
-  barchart.append("g")
-        .attr("class", "stackedgroups")
-
-          
-var ordinal = d3.scaleOrdinal()
-  .domain(["a", "b", "c", "d", "e"])
-  .range([ "rgb(153, 107, 195)", "rgb(56, 106, 197)", "rgb(93, 199, 76)", "rgb(223, 199, 31)", "rgb(234, 118, 47)"]);
+let yAxis3 = d3.axisLeft()
+            .scale(ychart3);
 
 
-var secondchart = d3.select(".barchart")
-        .append("g")
-  .attr("class", "legendOrdinal")
-  .attr("transform", "translate(600,20)");
+chart3.append("g")
+        .attr("class", "yAxis3")
+        .call(yAxis3);
 
-var legendOrdinal = legendColor()
-  //d3 symbol creates a path-string, for example
-  //"M0,-8.059274488676564L9.306048591020996,
-  //8.059274488676564 -9.306048591020996,8.059274488676564Z"
-  .shape("path", d3.symbol().type(d3.symbolSquare).size(150)())
-  .shapePadding(10)
-  //use cellFilter to hide the "e" cell
-  .cellFilter(function(d){ return d.label !== "e" })
-  .scale(z)
-  .labelWrap(150);
 
-d3.select(".legendOrdinal")
-  .call(legendOrdinal);
-  
-barchart.append("text")
-        .attr("class", "titlebarchart")
+var barwidth3 = width / data3.length;
+
+var bar3 = chart3.selectAll(".bar3")
+      .data(data3)
+      .enter().append("rect")
+      .attr("class", "bar3")
+      .attr("x", function(d) {  return xchart3(d.collected_source)})
+      .attr("y", function(d) { return ychart3(d.val); })
+      .attr("height", function(d) { return height - ychart3(d.val); })
+      .attr("width", xchart3.bandwidth())
+      .attr("fill", "#0c6980");
+
+
+        chart3.append("text")
+        .attr("class", "titlelinechart2")
+        .text("Waste Disposal" )
         .attr("x", (width / 2))             
         .attr("y", 0)
         .attr("text-anchor", "middle")  
         .style("font-size", "16px") 
-        .style("text-decoration", "underline")  
-        .text("Primary Reprocessing" );
+        .style("text-decoration", "underline");
 
-
-barchart.append("text")
+chart3.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 0 - margin.left)
       .attr("x",0 - (height / 2))
@@ -1042,71 +1251,123 @@ barchart.append("text")
 
 
 
+function chart3Update(props) {
 
-function barchartUpdate(props) {
-       
-                let a = store.getState();
-                let { materialsSelected } = a.feedstock;
-                let primaryMaterial = materialsSelected[0];
-                let district = props.Name;
-                let data123 = fullYearr[district][primaryMaterial];
-               
-                let facilities =  _.sortBy (_.drop( _.union(_.keys(fullYearr[district][primaryMaterial][0]), _.keys(fullYearr[district][primaryMaterial][1]), _.keys(fullYearr[district][primaryMaterial][2]),
-                _.keys(fullYearr[district][primaryMaterial][3]), 'quarter') ));
-                var stack = d3.stack()
-                        .keys(facilities)
-                        .order(d3.stackOrderNone)
-                        .offset(d3.stackOffsetNone);
-                var stackeddata = stack(data123);
-                _.forEach(stackeddata, function(val1, index1) {
-                        _.forEach(val1, function(val2, index2) {
-                                _.forEach(val2, function(val3, index3) {
-                                        if (_.isNaN(val3)) {
-                                                stackeddata[index1][index2][index3] = 0;
-                                        }
-                                })
-                        }
-                )});
-                ybar = d3.scaleLinear()
-                .domain([0, _.max(_.flattenDepth(stackeddata[stackeddata.length - 1],2 )) * 1.3])
-                .range([height,0])
-                .nice();
-                yAxisbar = d3.axisLeft()
-                        .scale(ybar);
-
-                barchart.select(".stackedgroups")
-                        .remove();
-                barchart.append("g")
-        .attr("class", "stackedgroups")
-                .selectAll("g")
-                .data(stackeddata)
-                .enter().append("g")
-                .attr("fill", function(d) { return z(d.key); })
-                .selectAll("rect")
-                .data(function(d) { return d; })
-                .enter().append("rect")
-                .attr("x", function(d,i) { return newxbar(i); })
-                .attr("y", function(d) { return ybar(d[1]); })
-                .attr("height", function(d) { return ybar(d[0]) - ybar(d[1]); })
-                .attr("width", xbar.bandwidth());
+         if ((optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+        {
+                chart3.selectAll(".bar3")
+                .attr("fill", "none");
+                return;
+        }
+        let a = store.getState();
+        let {selectedOption } = a.wasteInformationOptions;
+       // let primaryMaterial = materialsSelected[0];
+       // let district = props.Name;
 
 
-                 barchart.select(".titlebarchart")   
-        .transition()      
-        .text("Primary Reprocessing for " + primaryMaterial + " in " + props.Name );
+        data3 = [ {collected_source: 'Hazardous landfill', val: props['Hazardous landfill']}, 
+              {collected_source: 'Non-hazardous landfill', val: props['Non-hazardous landfill']},
+               {collected_source:  'Inert landfill', val: props[ 'Inert landfill']}, 
+              {collected_source:'Incineration with energy recovery', val: props['Incineration with energy recovery']},
+              {collected_source: 'Incineration without energy recovery', val: props['Incineration without energy recovery']}
+               ]
+    
+        let vals = [ data3[0].val, data3[1].val, data3[2].val, data3[3].val,data3[4].val ];
+        ychart3 = d3.scaleLinear()
+        .domain([0,_.max(vals) * 1.3])
+        .range([height, 0]);  
 
+        yAxis3 = d3.axisLeft()
+            .scale(ychart3);
 
-                barchart.select(".yaxisbar")
+        chart3.select(".yAxis3")
                 .transition()
                 .duration(1000)
-                .call(yAxisbar);
-       
+                .call(yAxis3);
+
+                chart3.selectAll(".bar3")
+                .data(data3)
+                .attr("x", function(d) {  return xchart3(d.collected_source)})
+                .attr("y", function(d) { return ychart3(d.val); })
+                .attr("height", function(d) { return height - ychart3(d.val); })
+                .attr("width", xchart3.bandwidth());
+
+     
+  
 }
 
 
 
 
+
+/*
+
+var table = d3.select('body').append('table')
+var thead = table.append('thead')
+var tbody = table.append('tbody');
+
+function tableUpdate(props) {
+        let holder = []
+        let district = props.Name;
+        let a = operators_data[district];
+        _.forEach(a, function(value, key) {
+        holder.push(value);
+        });
+        function tabulate(holder, columns) {
+                        table = d3.select('table');
+                        thead = table.select('thead')
+                        tbody = table.select('tbody');
+
+                        // append the header row
+                        thead.selectAll('tr').remove();
+                        tbody.selectAll('tr').remove();
+                        thead.append('tr')
+                        .selectAll('th')
+                        .data(columns).enter()
+                        .append('th')
+                        .text(function (column) { return column; });
+
+                        // create a row for each object in the data
+                        var rows = tbody.selectAll('tr')
+                        .data(holder)
+                        .enter()
+                        .append('tr');
+
+                        // create a cell in each row for each column
+                        var cells = rows.selectAll('td')
+                        .data(function (row) {
+                        return columns.map(function (column) {
+                        return {column: column, value: row[column]};
+                        });
+                        })
+                        .enter()
+                        .append('td')
+                        .text(function (d) { return d.value; });
+
+                return table;
+                }
+
+                // render the table(s)
+
+
+        tabulate(holder, ['Facility Name', 'Waste Stream Type', 'Facility Type']); // 2 column table
+
+
+}
+
+*/
+
+
+
+
+
+
+
+
+
+
 const render= () => {
+        mapChange();
         ReactDOM.render(<Parent store={store} />, document.getElementById('app'));
         geojson.setStyle(style);
         legendmap.update('Test');

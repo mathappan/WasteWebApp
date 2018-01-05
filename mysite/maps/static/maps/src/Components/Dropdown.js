@@ -1,32 +1,24 @@
 import React from 'react';
 import  ReactDOM  from 'react-dom';
-import { Dropdown } from 'semantic-ui-react';
+import { Dropdown, Divider } from 'semantic-ui-react';
 
 
 const options = [
-        { key: 'Batteries', text: 'Batteries', value: 'Batteries' },
-        { key: 'Co-mingled', text: 'Co-mingled', value: 'Co-mingled' },
-        { key: 'Composite', text: 'Composite', value: 'Composite' },
-        { key: 'Furniture', text: 'Furniture', value: 'Furniture' },
-        { key: 'Glass', text: 'Glass', value: 'Glass' },
-        { key: 'Metal', text: 'Metal', value: 'Metal' },
-        { key: 'Oil', text: 'Oil', value: 'Oil' },
-        { key: 'Organic', text: 'Organic', value: 'Organic' },
-        { key: 'Other Materials', text: 'Other Materials', value: 'Other Materials' },
-        { key: 'Paint', text: 'Paint', value: 'Paint' },
-        { key: 'Paper & Card', text: 'Paper & Card', value: 'Paper & Card' },
-        { key: 'Plasterboard', text: 'Plasterboard', value: 'Plasterboard' },
-        { key: 'Plastic', text: 'Plastic', value: 'Plastic' },
-        { key: 'Rubble', text: 'Rubble', value: 'Rubble' },
-        { key: 'Soil', text: 'Soil', value: 'Soil' },
-        { key: 'Textiles', text: 'Textiles', value: 'Textiles' },
-        { key: 'Tyres', text: 'Tyres', value: 'Tyres' },
-        { key: 'WEEE', text: 'WEEE', value: 'WEEE' },
-        { key: 'Wood', text: 'Wood', value: 'Wood'},
+        {key: 'Total Local Authority Collected Waste', text:'Total Local Authority Collected Waste', value: 'Total Local Authority Collected Waste'},
+        {key: 'Local Authority Collected Waste - Not Sent for Recycling', text: 'Local Authority Collected Waste - Not Sent for Recycling', value: 'Local Authority Collected Waste - Not Sent for Recycling'},
+        {key: 'Household – Total Waste', text: 'Household – Total Waste', value: 'Household – Total Waste'},
+        {key: 'Household - Waste not Sent for Recycling', text:'Household - Waste not Sent for Recycling', value:'Household - Waste not Sent for Recycling'},
+        {key: 'Non-household – Total Waste', text: 'Non-household – Total Waste', value: 'Non-household – Total Waste'},
+        {key: 'Non-household – Waste not Sent for Recycling', text: 'Non-household – Waste not Sent for Recycling', value: 'Non-household – Waste not Sent for Recycling'},
+        {key: 'Hazardous landfill', text: 'Hazardous landfill', value: 'Hazardous landfill'},
+        {key: 'Non-hazardous landfill', text:'Non-hazardous landfill', value:'Non-hazardous landfill'},
+        {key: 'Inert landfill', text: 'Inert landfill', value:'Inert landfill'},
+        {key: 'Incineration with energy recovery', text: 'Incineration with energy recovery', value:'Incineration with energy recovery'},
+        {key: 'Incineration without energy recovery', text: 'Incineration without energy recovery', value: 'Incineration without energy recovery'},
 ]
 
 
-export class MaterialMultipleSelection extends React.Component {
+export class WasteInformationOptionsSelection extends React.Component {
   
         constructor(props) {
                 super(props);
@@ -34,12 +26,13 @@ export class MaterialMultipleSelection extends React.Component {
         }
 
         handleChange(e, data){
-                this.props.store.dispatch({ type: 'changeInFeedstock', materials: data.value });
+                this.props.store.dispatch({ type: 'changeInOptions', selectedOption: data.value }); 
+                // store is passed down to child as a prop
         }
 
         render () {
                 return (
-                      <Dropdown onChange={this.handleChange} placeholder='Feedstock' multiple selection options={options} pointing style={{display: 'inline-block', width: '95%'}} />
+                      <Dropdown onChange={this.handleChange} placeholder='Waste Information Options' selection options={options} pointing style={{display: 'inline-block', width: '95%'}} />
                 )
         }
 }

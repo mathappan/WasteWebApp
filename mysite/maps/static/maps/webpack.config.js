@@ -4,7 +4,7 @@ const webpack = require('webpack')
 
 const analyze = !!process.env.ANALYZE_ENV
 let env = process.env.NODE_ENV || 'development'
-env = 'production'
+env = 'development'
 const webpackConfig = {
   name: 'client',
   target: 'web',
