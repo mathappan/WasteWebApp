@@ -202,7 +202,6 @@ const tableState = (
                                 holder.push(value);
                         });
                         state.data = holder;
-                        console.log(state);
                         return state;
                 default:
                         return state;
@@ -220,17 +219,17 @@ function mapChange() {
 
 
 var legendValues = {
-        'Total Local Authority Collected Waste': [0, 100, 1000, 5000],
-        'Household – Total Waste': [0, 100, 1000, 10000],
-        'Household - Waste not Sent for Recycling': [0, 100, 1000, 5000],
-        'Non-household – Total Waste': [0, 1000, 10000, 25000],
-        'Non-household – Waste not Sent for Recycling': [0, 1000, 10000, 25000],
-        'Local Authority Collected Waste - Not Sent for Recycling': [0, 100, 1000, 5000],     
-        'Hazardous landfill': [0, 1000, 2500, 5000],
-        'Non-hazardous landfill': [0, 50000, 100000, 200000],
-        'Inert landfill': [0, 125000, 250000,375000],
-        'Incineration with energy recovery': [0, 125000, 250000,375000],
-        'Incineration without energy recovery': [0, 150000, 300000,450000]
+        'Total Local Authority Collected Waste': [1900, 89200, 233300, 529000],
+        'Household – Total Waste': [1300, 79700, 215400, 415000],
+        'Household - Waste not Sent for Recycling': [1000, 50000, 130100, 263800, 562800],
+        'Non-household – Total Waste': [0, 9000, 26400, 58600],
+        'Non-household – Waste not Sent for Recycling': [0, 5200, 16100, 42000],
+        'Local Authority Collected Waste - Not Sent for Recycling': [1200, 54800, 133400, 301700],     
+        'Hazardous landfill': [0, 900, 3000, 5500],
+        'Non-hazardous landfill': [0, 22500, 90500, 194300],
+        'Inert landfill': [0, 1200, 4000,7800],
+        'Incineration with energy recovery': [0, 30800, 108900,208300],
+        'Incineration without energy recovery': [0, 5700, 18500, 25000]
 }
 
 
@@ -300,18 +299,18 @@ class Parent extends React.Component {
                 render() {
 
                   return (
-                        <div style={{marginTop: '50px', marginLeft: '100px', marginRight:'50px'}}>
+                        <div style={{margin: 'auto', width: '1450px'}}>
                         <Grid columns={1}>
-                        <Grid.Row stretched>        
+                        <Grid.Row >        
                         <Grid columns={2} divided>
-                                <Grid.Row stretched>
-                                        <Grid.Column>
+                                <Grid.Row >
+                                        <Grid.Column width={5}>
                                                 
                                         <Segment>
-                                                <div id='mapid'  style={{margin: 'auto', width: '90%', borderRadius: '15px'}}></div>
+                                                <div id='mapid'  style={{ width: '100%', borderRadius: '15px'}}></div>
                                         </Segment>
                                         </Grid.Column>
-                                        <Grid.Column id='dashboard'>
+                                        <Grid.Column id='dashboard' width={11}>
 	                                        
                                                         <div>
                                                                 <div style={{width: '80%', display:'inline-block'}}>
@@ -321,8 +320,7 @@ class Parent extends React.Component {
                                                                 <div style={{positon: 'relative', display:'inline-block'}}>
                                                                      <Popup
                                                                         trigger={<Button icon='help circle outline big' />}
-                                                                        content="The map will display the quantity of feedstock being recycled/reused by each local authority. If multiple feedstocks are
-                                                                        selected, the map will display those districts where the feedstocks selected are recycled/reused and not recycled/reused."
+                                                                        content="The map will display distribution of the quantity relating to the option selected in the dropdown menu."
                                                                         basic
                                                                 />    
                                                                 <ButtonExampleIcon store={this.props.store} />
@@ -330,7 +328,7 @@ class Parent extends React.Component {
                                                                      
                                                                                 <Popup
                                                                                 trigger={<Button icon='help circle outline big' />}
-                                                                                content="By clicking on the settings button, the local authorities can be filtered based on how many tonnes of feedstock are recycled/reused in a year."
+                                                                                content="By clicking on the settings button, the local authorities canbe filtered based on quantities for the option selected."
                                                                                 basic
                                                                                 />    
                                                                         </div>
@@ -339,16 +337,28 @@ class Parent extends React.Component {
                                                                         
                                                                         <MinimumValueFilter store={this.props.store} maxValue={this.state.maxValue}/>
                                                                 </div>
-
+                                                                
+                        
 
                                                         </div>
+                                                <div style={{width: '80%', display:'inline-block'}}>        
                                                 <MaterialMultipleSelection store={this.props.store} />
+                                                </div>
+                                                <div style={{positon: 'relative', display:'inline-block', float:'right' }}>
+                                                                     
+                                                                                <Popup
+                                                                                trigger={<Button icon='help circle outline big' />}
+                                                                                content="For different materials, the recycling statistics is shown for each quarter."
+                                                                                basic
+                                                                                />    
+                                                                
+                                                                </div>
                                                 <Segment.Group horizontal compact>
-                                                                        <Segment>
+                                                                        <Segment compact>
                                                                         <svg className="chart1"></svg>
                                                                         
                                                                 </Segment>
-                                                               <Segment>
+                                                               <Segment compact>
                                                                         <svg className="chart2"></svg>
                                                                         
                                                                 </Segment>
@@ -356,12 +366,12 @@ class Parent extends React.Component {
                                                 </Segment.Group>
                                                 <Segment.Group horizontal compact>
                                                         <Segment>
-                                                                <svg className="linechart"></svg>
+                                                                <svg className="chart3"></svg>
                                                                 
                                                         </Segment>
 
                                                         <Segment>
-                                                                <svg className="chart3"></svg>
+                                                                <svg className="linechart"></svg>
                                                                 
                                                         </Segment>
                                                 </Segment.Group>
@@ -371,8 +381,12 @@ class Parent extends React.Component {
                         </Grid.Row>
                         <Grid.Row>
                                 <div style={{margin:'auto', width:'70%'}}>
+                                        <svg className="titleoftable"></svg>
+                                </div>
+                                <div style={{margin:'auto', width:'70%'}}>
                                         <Table store={this.props.store} />
                                 </div>
+                                
                                 
                         </Grid.Row>
                         </Grid>
@@ -408,10 +422,17 @@ fetch('/maps/annualLAwithMap/').then(function(response) {
 });
 fetch('/maps/cleanedDataCountyCouncilMix/').then(function(response) {
         response.json().then(function(response1) {
-                geojsonTopology2 = topojson.feature(response1, response1.objects.cleanedDataCountyCouncilMix);
+                geojsonTopology2 = topojson.feature(response1, response1.objects.cleanedDataCountyCouncilMixv1);
                 geojsonlayer2 =  L.geoJson(geojsonTopology2, {onEachFeature:onEachFeature});
         });
 });
+var onlyladata;
+fetch('/maps/OnlyLaData/').then(function(response) {
+        response.text().then(function(response1) {
+                onlyladata = d3.csvParse(response1);
+        })
+})
+
 
 
 fetch('/quarterly-data/Q1').then(function(response) {
@@ -501,12 +522,72 @@ fetch('/reprocessing-data/FullYear').then(function(response) {
         });
 });
 
+
 fetch('/operators-data/Jan17').then(function(response) {
         
         response.json().then(function(response1) {
                 operators_data = response1;          
         })
 })
+
+var laquarterly_data_apr15, laquarterly_data_jul15, laquarterly_data_oct15, laquarterly_data_jan16,laquarterly_data_apr16, laquarterly_data_jul16, laquarterly_data_oct16, laquarterly_data_jan17;
+
+
+
+fetch('/laquarterly-data/Apr15').then(function(response) {
+        response.text().then(function(response1) {
+                laquarterly_data_apr15 = d3.csvParse(response1);
+               
+        })
+})
+
+
+fetch('/laquarterly-data/Jul15').then(function(response) {
+        response.text().then(function(response1) {
+                laquarterly_data_jul15 = d3.csvParse(response1);
+        })
+})
+
+fetch('/laquarterly-data/Oct15').then(function(response) {
+        response.text().then(function(response1) {
+                laquarterly_data_oct15 = d3.csvParse(response1);
+        })
+})
+
+fetch('/laquarterly-data/Jan16').then(function(response) {
+        response.text().then(function(response1) {
+                laquarterly_data_jan16 = d3.csvParse(response1);
+        })
+})
+
+
+fetch('/laquarterly-data/Apr16').then(function(response) {
+     
+        response.text().then(function(response1) {
+                laquarterly_data_apr16 = d3.csvParse(response1);
+        })
+})
+
+
+fetch('/laquarterly-data/Jul16').then(function(response) {
+        response.text().then(function(response1) {
+                laquarterly_data_jul16 = d3.csvParse(response1);
+        })
+})
+
+fetch('/laquarterly-data/Oct16').then(function(response) {
+     
+        response.text().then(function(response1) {
+                laquarterly_data_oct16 = d3.csvParse(response1);
+        })
+})
+
+fetch('/laquarterly-data/Jan17').then(function(response) {
+        response.text().then(function(response1) {
+                laquarterly_data_jan17 = d3.csvParse(response1);
+        })
+})
+
 
 
 
@@ -569,8 +650,8 @@ function clickFeature(e) {
         chart2Update(layer.feature.properties);
         chart3Update(layer.feature.properties);
         linechartUpdate(layer.feature.properties);
+        tableTitleUpdate(layer.feature.properties);
         store.dispatch({ type: 'MapClicked',  props:layer.feature.properties});
-        tableUpdate(layer.feature.properties);
 
 }
 
@@ -720,10 +801,14 @@ legendmap.addTo(mymap);
 
  
 var data1 = [ {collected_source: 'Total Local Authority Collected Waste', val: 1}, {collected_source: 'Household – Total Waste', val: 3},
-              {collected_source: 'Household - Waste not Sent for Recycling', val: 5}, {collected_source: 'Local Authority Collected Waste - Not Sent for Recycling', val: 8} ]
-var margin = margin = {top: 20, right:50, bottom: 30, left: 50},
-        width = 450 - margin.left - margin.right,
+              {collected_source: 'Household - Waste not Sent for Recycling', val: 5}, {collected_source: 'Local Authority Collected Waste - Not Sent for Recycling', val: 8},
+              {collected_source: 'Non-household – Total Waste', val: 7}, 
+              {collected_source: 'Non-household – Waste not Sent for Recycling', val: 4} ]
+
+var margin = margin = {top: 15, right:105, bottom: 45, left: 70},
+        width = 500 - margin.left - margin.right,
         height = 300 - margin.top - margin.bottom;
+
 var chart1 = d3.select(".chart1")
         .attr("width", width +  margin.left + margin.right)
         .attr("height", height + margin.bottom + margin.top)
@@ -736,18 +821,23 @@ var ychart1 = d3.scaleLinear()
         .domain([0, 20])
         .range([height, 0]);
 
+var ychart2 = d3.scaleLinear()
+        .domain([0, 20])
+        .range([height, 0]);
+
 var xchart1 = d3.scaleBand()
         .domain(['Total Local Authority Collected Waste', 'Household – Total Waste', 'Household - Waste not Sent for Recycling',
-        'Local Authority Collected Waste - Not Sent for Recycling'])
-        .range([0, width-100])
-        .paddingInner(0.1)
-        .paddingOuter(0)
+        'Local Authority Collected Waste - Not Sent for Recycling','Non-household – Total Waste', 'Non-household – Waste not Sent for Recycling'])
+        .range([0, width])
+        .padding(0.1)
         .round(false);
-
+var chart1tickvalues =  ["Total LA Collected", "HH - Total", "HH - Waste not Recycled", "LA - Waste not Recycled", "NHH - Total", "NHH - Waste not Recycled"];
 var xAxis1 = d3.axisBottom()
-        .scale(xchart1); 
+        .scale(xchart1)
+        .tickFormat(function(d, i){ return chart1tickvalues[i]; }); 
 
 chart1.append("g")
+        .style("font", "11px sans-serif")
         .attr("class", "xAxis1")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis1)
@@ -763,6 +853,19 @@ chart1.append("g")
         .call(yAxis1);
 
 
+
+let yAxis2 = d3.axisRight()
+            .scale(ychart2);
+
+
+let rightaxispos = width;    
+
+chart1.append("g")
+        .attr("class", "yAxis2")
+        .attr("transform", "translate( " + rightaxispos + ", 0 )")
+        .call(yAxis2);
+
+
 var barwidth1 = width / (data1.length);
 
 var bar1 = chart1.selectAll(".bar1")
@@ -772,8 +875,8 @@ var bar1 = chart1.selectAll(".bar1")
       .attr("x", function(d) {  return xchart1(d.collected_source)})
       .attr("y", function(d) { return ychart1(d.val); })
       .attr("height", function(d) { return height - ychart1(d.val); })
-      .attr("width", xchart1.bandwidth())
-      .attr("fill", "#c4dbe0");
+      .attr("width", xchart1.bandwidth());
+      //.attr("fill", "#ffffff");
 
 
 
@@ -810,11 +913,205 @@ function wrap(text, width) {
         .attr("x", (width / 2))             
         .attr("y", 0)
         .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
+        .style("font-size", "14px") 
         .style("text-decoration", "underline")  
-        .text("LA and Household Waste" );       
+        .text("Local Authority(LA), Household(HH) and" );
+
+        chart1.append("text")
+        .attr("class", "titlelinechart1")
+        .attr("x", (width / 2))             
+        .attr("y", "1em")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "14px") 
+        .style("text-decoration", "underline")  
+        .text("Non-Household(NHH) Waste" );
+
+        
+
+
 
 chart1.append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 0 - margin.left)
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes (LA & HH)");      
+
+chart1.append("text")
+      .attr("transform", "rotate(90)")
+      .attr("y", 0 - width - 50 - 10)
+      .attr("x",0 + (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Tonnes (NHH)");      
+
+
+
+
+
+
+
+function chart1Update(props) {
+
+        let a = store.getState();
+        let {selectedOption } = a.wasteInformationOptions;
+       // let primaryMaterial = materialsSelected[0];
+        let district = props.Name;
+        let props1 = props;
+        if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+        {
+        
+                let q = _.find(onlyladata, function(o) { return o.Name == district; }); //taking la data separately for data on disposal authorities to show in plot
+                props1 = q;
+                
+//                chart1.selectAll(".bar1")
+  //              .attr("fill", "none");
+    //            return;
+        }
+
+        
+        console.log(props1);
+        data1 = [ {collected_source: 'Total Local Authority Collected Waste', val: parseFloat(props1['Total Local Authority Collected Waste'])},
+                {collected_source: 'Household – Total Waste', val: parseFloat(props1['Household – Total Waste'])},
+              {collected_source: 'Household - Waste not Sent for Recycling', val: parseFloat(props1['Household - Waste not Sent for Recycling'])}, 
+              {collected_source: 'Local Authority Collected Waste - Not Sent for Recycling', val: parseFloat(props1['Local Authority Collected Waste - Not Sent for Recycling'])},
+              {collected_source: 'Non-household – Total Waste', val: parseFloat(props1['Non-household – Total Waste'])}, 
+              {collected_source: 'Non-household – Waste not Sent for Recycling', val: parseFloat(props1['Non-household – Waste not Sent for Recycling'])} 
+               ];
+        console.log(data1);
+        let vals1 = [ data1[0].val, data1[1].val, data1[2].val, data1[3].val ];
+        ychart1 = d3.scaleLinear()
+        .domain([0, _.max(vals1) * 1.3])
+        .range([height, 0]);  
+
+        yAxis1 = d3.axisLeft()
+            .scale(ychart1);
+        
+        let vals2 = [ data1[4].val, data1[5].val ];
+        
+        ychart2 = d3.scaleLinear()
+        .domain([0,_.max(vals2) * 1.3])
+        .range([height, 0]);  
+
+        yAxis2 = d3.axisRight()
+            .scale(ychart2);
+
+
+
+        chart1.select(".yAxis1")
+                .transition()
+                .duration(1000)
+                .call(yAxis1);
+
+        
+        chart1.select(".yAxis2")
+                .transition()
+                .duration(1000)
+                .call(yAxis2);
+
+
+        chart1.selectAll(".bar1")
+        .data(data1)
+        .transition()
+        .attr("x", function(d) {  return xchart1(d.collected_source)})
+        .attr("y", function(d,i) { if(i>3) {return ychart2(d.val)} else {return ychart1(d.val)}; })
+        .attr("height", function(d,i) { if(i>3) {return height - ychart2(d.val)} else {return height - ychart1(d.val);} })
+        .attr("width", xchart1.bandwidth()) 
+        .attr("fill", "#c4dbe0");
+}
+
+
+//linechart 2
+
+margin = margin = {top: 15, right:15, bottom: 45, left: 90},
+        width = 500 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
+
+data1 = [ {period: "Apr15 - Jun15", val: 1}, {period: "Jul15 - Sep15", val: 3}, {period: "Oct15 - Dec15", val: 5}, {period: "Jan16 - Mar16", val: 7}, 
+              {period: "Apr16 - Jun16", val: 4}, {period: "Jul16 - Sep16", val: 8}, {period: "Oct16 - Dec16", val: 12}, {period: "Jan17 - Mar17", val: 16} ];
+
+
+var linechart1 = d3.select(".chart2")
+        .attr("width", width +  margin.left + margin.right)
+        .attr("height", height + margin.bottom + margin.top)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+var yline1 = d3.scaleLinear()
+        .domain([0, 20])
+        .range([height, 0]);
+
+var xline1 = d3.scaleOrdinal()
+        .domain(["","Apr15 - Jun15", "Jul15 - Sep15", "Oct15 - Dec15", "Jan16 - Mar16", "Apr16 - Jun16", "Jul16 - Sep16", "Oct16 - Dec16", "Jan17 - Mar17",""])
+        .range([0, 1*width/10, 2*width/10, 3*width/10, 4*width/10, 5*width/10, 6*width/10, 7*width/10, 8*width/10, 9*width/10]);
+
+
+var line1 = d3.line()
+            .x( function(d) { return xline1(d.period); } )
+            .y( function(d) { return yline1(d.val); });
+            
+linechart1.append("path")
+    .datum(data1)
+    .attr("class", "line1")
+    .attr("d", line1)
+  // .attr("stroke", "steelblue")
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+              .attr("stroke-width", 1.5)
+              .attr("fill", "none");
+
+
+var xAxisline1 = d3.axisBottom()
+        .scale(xline1); 
+linechart1.append("g")
+        .attr("class", "xaxis1")
+        .style("font", "11px sans-serif")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxisline1)
+        .selectAll(".tick text")
+        .call(wrap, 34);
+
+let yAxisline1 = d3.axisLeft()
+            .scale(yline1);
+
+
+linechart1.append("g")
+        .attr("class", "yaxisline1")
+        .call(yAxisline1);
+
+linechart1.selectAll("circle")
+    .data(data1)
+  .enter().append("circle")
+    .attr("class", "circle1")
+    .attr("cx", function(d) { return xline1(d.period); })
+    .attr("cy", function(d) {  return yline1(d.val); })
+    .attr("r", 4);
+   // .attr("fill", "#ffffff");
+
+        linechart1.append("text")
+        .attr("class", "titlelinechart11")
+        .attr("x", (width / 2))             
+        .attr("y", 0)
+        .attr("text-anchor", "middle")  
+        .style("font-size", "14px") 
+        .style("text-decoration", "underline")  
+        .text("Household Waste Collected" );
+    
+
+        linechart1.append("text")
+        .attr("class", "titlelinechart21")
+        .attr("x", (width / 2))             
+        .attr("y", "1em")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "14px") 
+        .style("text-decoration", "underline")  
+        .text("" );
+    
+
+linechart1.append("text")
       .attr("transform", "rotate(-90)")
       .attr("y", 0 - margin.left)
       .attr("x",0 - (height / 2))
@@ -823,49 +1120,112 @@ chart1.append("text")
       .text("Tonnes");      
 
 
-function chart1Update(props) {
+
+
+
+function chart2Update(props) {
+
+    
 
         let a = store.getState();
-        let {selectedOption } = a.wasteInformationOptions;
-       // let primaryMaterial = materialsSelected[0];
-       // let district = props.Name;
-        if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+        let { materialsSelected } = a.wasteInformationOptions;
+         let {selectedOption } = a.wasteInformationOptions;
+
+          if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
         {
-                chart1.selectAll(".bar1")
-                .attr("fill", "none");
+                linechart1.selectAll(".line1")
+                .attr("stroke", "none");
                 return;
         }
 
-        data1 = [ {collected_source: 'Total Local Authority Collected Waste', val: props['Total Local Authority Collected Waste']},
-                {collected_source: 'Household – Total Waste', val: props['Household – Total Waste']},
-              {collected_source: 'Household - Waste not Sent for Recycling', val: props['Household - Waste not Sent for Recycling']}, 
-              {collected_source: 'Local Authority Collected Waste - Not Sent for Recycling', val: props['Local Authority Collected Waste - Not Sent for Recycling']} ]
 
-        let vals = [ data1[0].val, data1[1].val, data1[2].val, data1[3].val ];
-        ychart1 = d3.scaleLinear()
-        .domain([0, _.max(vals) * 1.3])
-        .range([height, 0]);  
+       
+        let primaryMaterial = "Total hh waste collected";
+        let district = props.Name;
 
-        yAxis1 = d3.axisLeft()
-            .scale(ychart1);
 
-        chart1.select(".yAxis1")
-                .transition()
-                .duration(1000)
-                .call(yAxis1);
+        let q1 = _.find(laquarterly_data_apr15, function(o) { return o.Authority == district; });
+        let q2 = _.find(laquarterly_data_jul15, function(o) { return o.Authority == district; });
+        let q3 = _.find(laquarterly_data_oct15, function(o) { return o.Authority == district; });
+        let q4 = _.find(laquarterly_data_jan16, function(o) { return o.Authority == district; });
 
-        chart1.selectAll(".bar1")
-        .data(data1)
-        .transition()
-        .attr("x", function(d) {  return xchart1(d.collected_source)})
-        .attr("y", function(d) { return ychart1(d.val); })
-        .attr("height", function(d) { return height - ychart1(d.val); })
-        .attr("width", xchart1.bandwidth()) 
-        .attr("fill", "#c4dbe0");
+        let q5 = _.find(laquarterly_data_apr16, function(o) { return o.Authority == district; });
+        let q6 = _.find(laquarterly_data_jul16, function(o) { return o.Authority == district; });
+        let q7 = _.find(laquarterly_data_oct16, function(o) { return o.Authority == district; });
+        let q8 = _.find(laquarterly_data_jan17, function(o) { return o.Authority == district; });
+
+        let arrayofquarterlydata = [parseFloat(q1[primaryMaterial]), parseFloat(q2[primaryMaterial]), parseFloat(q3[primaryMaterial]), parseFloat(q4[primaryMaterial]),
+                                        parseFloat(q5[primaryMaterial]), parseFloat(q6[primaryMaterial]), parseFloat(q7[primaryMaterial]), parseFloat(q8[primaryMaterial])];
+        let quarterlydata = [ { period: "Apr15 - Jun15", val: q1[primaryMaterial]}, { period: "Jul15 - Sep15", val: q2[primaryMaterial]}, 
+                                { period: "Oct15 - Dec15", val: q3[primaryMaterial]}, {period: "Jan16 - Mar16", val: q4[primaryMaterial]},
+                                  { period: "Apr16 - Jun16", val: q5[primaryMaterial]}, { period: "Jul16 - Sep16", val: q6[primaryMaterial]}, 
+                                    { period: "Oct16 - Dec16", val: q7[primaryMaterial]}, {period: "Jan17 - Mar17", val: q8[primaryMaterial]}
+                            ];  
+        console.log(quarterlydata);
+        linechart1.select(".titlelinechart11")         
+        .text("Household Waste Collected in" );
+        linechart1.select(".titlelinechart21")
+        .text( props.Name );
+
+        
+       
+        yline1 = d3.scaleLinear()
+            .domain([0, _.max(arrayofquarterlydata) * 1.3])
+            .range([height,0])
+            .nice();
+        
+        yAxisline1 = d3.axisLeft()
+                    .scale(yline1);
+
+        linechart1.select(".line1")
+            .datum(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("d", line1)
+            .attr("stroke", "steelblue")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("stroke-width", 1.5)
+            .attr("fill", "none");
+
+        linechart1.selectAll(".circle1")
+            .data(quarterlydata)
+            .transition()
+            .duration(1000)
+            .attr("cx", function(d) { return xline1(d.period); })
+            .attr("cy", function(d) { return yline1(d.val); })
+            .attr("r", 4)
+            .attr("fill", "steelblue");
+
+        linechart1.select(".yaxisline1")
+            .transition()
+            .duration(1000)
+            .call(yAxisline1);
+     
+  
 }
 
 
-//Barchar 2
+
+
+
+
+
+
+
+/*
+
+
+
+
+
+
+
+
+
+
+
+
 
  
 var data2 = [ {collected_source: 'Non-household – Total Waste', val: 7}, 
@@ -878,7 +1238,7 @@ var chart2 = d3.select(".chart2")
 
 
 
-var ychart2 = d3.scaleLinear()
+ychart2 = d3.scaleLinear()
         .domain([0, 20])
         .range([height, 0]);
 
@@ -900,7 +1260,7 @@ chart2.append("g")
         .selectAll(".tick text")
         .call(wrap, 60);
 
-let yAxis2 = d3.axisLeft()
+yAxis2 = d3.axisLeft()
             .scale(ychart2);
 
 
@@ -915,11 +1275,11 @@ var bar2 = chart2.selectAll(".bar2")
       .data(data2)
     .enter().append("rect")
       .attr("class", "bar2")
-      .attr("x", function(d) {  return 34 + xchart2(d.collected_source)})
+      .attr("x", function(d) {  return 32 + xchart2(d.collected_source)})
       .attr("y", function(d) { return ychart2(d.val); })
       .attr("height", function(d) { return height - ychart2(d.val); })
       .attr("width", (xchart2.bandwidth()/2))
-      .attr("fill", "#00a8a8");
+      .attr("fill", "#ffffff");
 
 
         chart2.append("text")
@@ -976,19 +1336,22 @@ function chart2Update(props) {
                 chart2.selectAll(".bar2")
                 .data(data2)
                 .transition()
-      .attr("x", function(d) {  return xchart2(d.collected_source)})
+      .attr("x", function(d) {  return 32 + xchart2(d.collected_source)})
       .attr("y", function(d) { return ychart2(d.val); })
       .attr("height", function(d) { return height - ychart2(d.val); })
-      .attr("width", xchart2.bandwidth()/2);
-
+      .attr("width", xchart2.bandwidth()/2)
+       .attr("fill", "#00a8a8");
      
   
 }
 
-
+*/
 
 var data = [ {period: "Apr14 - Jun14", val: 1}, {period: "Jul14 - Sep14", val: 3}, {period: "Oct14 - Dec14", val: 5}, {period: "Jan15 - Mar15", val: 7}, {period: "Apr15 - Jun15", val: 4}, {period: "Jul15 - Sep15", val: 8}, {period: "Oct15 - Dec15", val: 12}, {period: "Jan16 - Mar16", val: 16} ];
 
+margin = margin = {top: 15, right:15, bottom: 45, left: 90},
+        width = 500 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
 var linechart = d3.select(".linechart")
         .attr("width", width +  margin.left + margin.right)
@@ -1046,14 +1409,21 @@ function wrap(text, width) {
   });
 }
 
+var linecharttickvalues =  ["","Apr15 - Jun15", "Jul15 - Sep15", "Oct15 - Dec15", "Jan16 - Mar16", "Apr16 - Jun16", "Jul16 - Sep16", "Oct16 - Dec16", "Jan17 - Mar17",""];
+
 var xAxisline = d3.axisBottom()
-        .scale(xline); 
+        .scale(xline)
+        .tickFormat(function(d, i){ return linecharttickvalues[i]; }); 
+
+
+
 linechart.append("g")
         .attr("class", "xaxis")
+        .style("font", "11px sans-serif")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxisline)
         .selectAll(".tick text")
-        .call(wrap, 60);
+        .call(wrap, 34);
 
 let yAxisline = d3.axisLeft()
             .scale(yline);
@@ -1069,17 +1439,28 @@ linechart.selectAll("circle")
     .attr("class", "circle")
     .attr("cx", function(d) { return xline(d.period); })
     .attr("cy", function(d) {  return yline(d.val); })
-    .attr("r", 4);
-   // .attr("fill", "steelblue")
+    .attr("r", 4)
+    .attr("fill", "#ffffff");
 
         linechart.append("text")
-        .attr("class", "titlelinechart")
+        .attr("class", "titlelinechart1")
         .attr("x", (width / 2))             
         .attr("y", 0)
         .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
+        .style("font-size", "14px") 
         .style("text-decoration", "underline")  
-        .text("Quarterly Variation in Material Recycled" );
+        .text("Material Recycled" );
+    
+
+        linechart.append("text")
+        .attr("class", "titlelinechart2")
+        .attr("x", (width / 2))             
+        .attr("y", "1em")
+        .attr("text-anchor", "middle")  
+        .style("font-size", "14px") 
+        .style("text-decoration", "underline")  
+        .text("" );
+    
 
 linechart.append("text")
       .attr("transform", "rotate(-90)")
@@ -1100,10 +1481,10 @@ function linechartUpdate(props) {
         let a = store.getState();
         let { materialsSelected } = a.wasteInformationOptions;
          let {selectedOption } = a.wasteInformationOptions;
-
-             if (!(optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+         
+        if (!(optionsforMap1.includes(selectedOption)) || materialsSelected == 'None Selected')// checking if includes the relevant optoon to this chart has been selected
         {
-                linechart.selectAll("path")
+                linechart.selectAll(".line")
                 .attr("stroke", "none");
                 return;
         }
@@ -1129,11 +1510,12 @@ function linechartUpdate(props) {
                                     { period: "Oct15 - Dec15", val: q3[primaryMaterial]}, {period: "Jan16 - Mar16", val: q4[primaryMaterial]}
                             ];  
 
-        linechart.select(".titlelinechart")   
-        .transition()      
-        .text("Quarterly Variation in " + primaryMaterial + " Collected in " + props.Name );
+        linechart.select(".titlelinechart1")         
+        .text(primaryMaterial + " Recycled in ");
+        linechart.select(".titlelinechart2")
+        .text( props.Name );
 
-
+        
        
         yline = d3.scaleLinear()
             .domain([0, _.max(arrayofquarterlydata) * 1.3])
@@ -1154,9 +1536,7 @@ function linechartUpdate(props) {
             .attr("stroke-width", 1.5)
             .attr("fill", "none");
 
-     //  console.log(arrayofquarterlydata);
-      //  console.log(_.max(arrayofquarterlydata));
-        linechart.selectAll("circle")
+        linechart.selectAll(".circle")
             .data(quarterlydata)
             .transition()
             .duration(1000)
@@ -1173,6 +1553,9 @@ function linechartUpdate(props) {
   
 }
 
+margin = margin = {top: 15, right:45, bottom: 45, left: 70},
+        width = 500 - margin.left - margin.right,
+        height = 300 - margin.top - margin.bottom;
 
 var data3 = [ {collected_source: 'Hazardous landfill', val: 7}, 
               {collected_source: 'Non-hazardous landfill', val: 4},
@@ -1193,11 +1576,9 @@ var ychart3 = d3.scaleLinear()
         .range([height, 0]);
 
 var xchart3 = d3.scaleBand()
-        .domain(['Hazardous landfill',
-          'Non-hazardous landfill', 'Inert landfill',  'Incineration with energy recovery',  'Incineration without energy recovery'])
-        .range([0, width-100])
-        .paddingInner(0.1)
-        .paddingOuter(0)
+        .domain(['Hazardous landfill', 'Non-hazardous landfill', 'Inert landfill',  'Incineration with energy recovery',  'Incineration without energy recovery'])
+        .range([0, width])
+        .padding(0.1)
         .round(false);
 
 var xAxis3 = d3.axisBottom()
@@ -1205,10 +1586,11 @@ var xAxis3 = d3.axisBottom()
 
 chart3.append("g")
         .attr("class", "xAxis3")
+        .style("font", "11px sans-serif")
         .attr("transform", "translate(0," + height + ")")
         .call(xAxis3)
         .selectAll(".tick text")
-        .call(wrap, 60);
+        .call(wrap, 90);
 
 let yAxis3 = d3.axisLeft()
             .scale(ychart3);
@@ -1229,7 +1611,7 @@ var bar3 = chart3.selectAll(".bar3")
       .attr("y", function(d) { return ychart3(d.val); })
       .attr("height", function(d) { return height - ychart3(d.val); })
       .attr("width", xchart3.bandwidth())
-      .attr("fill", "#0c6980");
+      .attr("fill", "#ffffff");
 
 
         chart3.append("text")
@@ -1238,7 +1620,7 @@ var bar3 = chart3.selectAll(".bar3")
         .attr("x", (width / 2))             
         .attr("y", 0)
         .attr("text-anchor", "middle")  
-        .style("font-size", "16px") 
+        .style("font-size", "14px") 
         .style("text-decoration", "underline");
 
 chart3.append("text")
@@ -1253,18 +1635,17 @@ chart3.append("text")
 
 function chart3Update(props) {
 
-         if ((optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
+  
+        let a = store.getState();
+        let {selectedOption } = a.wasteInformationOptions;
+       // let primaryMaterial = materialsSelected[0];
+       // let district = props.Name;
+       if ((optionsforMap1.includes(selectedOption)))// checking if includes the relevant optoon to this chart has been selected
         {
                 chart3.selectAll(".bar3")
                 .attr("fill", "none");
                 return;
         }
-        let a = store.getState();
-        let {selectedOption } = a.wasteInformationOptions;
-       // let primaryMaterial = materialsSelected[0];
-       // let district = props.Name;
-
-
         data3 = [ {collected_source: 'Hazardous landfill', val: props['Hazardous landfill']}, 
               {collected_source: 'Non-hazardous landfill', val: props['Non-hazardous landfill']},
                {collected_source:  'Inert landfill', val: props[ 'Inert landfill']}, 
@@ -1272,6 +1653,12 @@ function chart3Update(props) {
               {collected_source: 'Incineration without energy recovery', val: props['Incineration without energy recovery']}
                ]
     
+        chart3.select(".titlelinechart2")         
+        .text("Waste Disposal in " + props.Name);
+        linechart.select(".titlelinechart2")
+        .text( props.Name );
+
+
         let vals = [ data3[0].val, data3[1].val, data3[2].val, data3[3].val,data3[4].val ];
         ychart3 = d3.scaleLinear()
         .domain([0,_.max(vals) * 1.3])
@@ -1285,12 +1672,14 @@ function chart3Update(props) {
                 .duration(1000)
                 .call(yAxis3);
 
-                chart3.selectAll(".bar3")
-                .data(data3)
-                .attr("x", function(d) {  return xchart3(d.collected_source)})
-                .attr("y", function(d) { return ychart3(d.val); })
-                .attr("height", function(d) { return height - ychart3(d.val); })
-                .attr("width", xchart3.bandwidth());
+        chart3.selectAll(".bar3")
+        .data(data3)
+        .attr("x", function(d) {  return xchart3(d.collected_source)})
+        .attr("y", function(d) { return ychart3(d.val); })
+        .attr("height", function(d) { return height - ychart3(d.val); })
+        .attr("width", xchart3.bandwidth())
+        .attr("fill", "#0c6980");
+
 
      
   
@@ -1362,7 +1751,29 @@ function tableUpdate(props) {
 
 
 
+var titleoftable = d3.select(".titleoftable")
+        .attr("width",1000)
+        .attr("height",30       )
+        .append("g")
+        .attr("transform", "translate(" + 0 + "," + 5 + ")");
 
+
+titleoftable.append("text")
+       .attr("class", "titleoftable")
+      .attr("y", 0)
+      .attr("x",500)
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Operators in Area")      
+      .style("font-weight", "bold");
+
+function tableTitleUpdate(props) {
+           let district = props.Name;
+
+
+           titleoftable.select(".titleoftable")         
+           .text( "Operators in " + props.Name );
+}
 
 
 

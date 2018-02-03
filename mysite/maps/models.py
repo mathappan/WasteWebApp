@@ -28,3 +28,10 @@ class OperatorsData(models.Model):
     data = models.FileField()
     def __str__(self):
         return self.period_name
+
+
+class LaQuarterlyData(models.Model):
+    quarter_name = models.CharField(max_length = 200, primary_key = True)
+    data = models.FileField()
+    def __str__(self):
+        return self.quarter_name

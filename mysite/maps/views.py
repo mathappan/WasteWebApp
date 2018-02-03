@@ -3,7 +3,7 @@ from django.template import loader
 # Create your views here.
 
 from django.http import HttpResponse
-from .models import Map, QuarterlyData, ReprocessingData, OperatorsData
+from .models import Map, QuarterlyData, ReprocessingData, OperatorsData, LaQuarterlyData
 
 def index(request):
  #   map1 = Map.objects.get(map_name = 'EnglandOnly')
@@ -25,3 +25,9 @@ def reprocessing_data(request, quarter):
 def operators_data(request, quarter):
     operators_data = OperatorsData.objects.get(pk=quarter)
     return HttpResponse(operators_data.data)
+
+def laquarterly_data(request, quarter):
+    laquarterly_data = LaQuarterlyData.objects.get(pk=quarter)
+    return HttpResponse(laquarterly_data.data)
+
+
