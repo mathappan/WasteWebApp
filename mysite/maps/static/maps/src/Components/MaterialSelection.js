@@ -39,7 +39,7 @@ export class MaterialMultipleSelection extends React.Component {
 
         render () {
                 return (
-                      <Dropdown onChange={this.handleChange} placeholder='Feedstock' multiple selection options={options} pointing style={{display: 'inline-block', width: '95%'}} />
+                      <Dropdown onChange={this.handleChange} placeholder='Material Recycled' multiple selection options={options} pointing style={{display: 'inline-block', width: '95%'}} />
                 )
         }
 }

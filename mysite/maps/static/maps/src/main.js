@@ -780,7 +780,7 @@ legendmap.update = function (props) {
               
                 else {
 
-                        this.div.innerHTML = 'Select Feedstock';
+                        this.div.innerHTML = 'Select Material Type';
                 }
 
         }
@@ -875,8 +875,8 @@ var bar1 = chart1.selectAll(".bar1")
       .attr("x", function(d) {  return xchart1(d.collected_source)})
       .attr("y", function(d) { return ychart1(d.val); })
       .attr("height", function(d) { return height - ychart1(d.val); })
-      .attr("width", xchart1.bandwidth());
-      //.attr("fill", "#ffffff");
+      .attr("width", xchart1.bandwidth())
+      .attr("fill", "#ffffff");
 
 
 
@@ -1088,8 +1088,8 @@ linechart1.selectAll("circle")
     .attr("class", "circle1")
     .attr("cx", function(d) { return xline1(d.period); })
     .attr("cy", function(d) {  return yline1(d.val); })
-    .attr("r", 4);
-   // .attr("fill", "#ffffff");
+    .attr("r", 4)
+    .attr("fill", "#ffffff");
 
         linechart1.append("text")
         .attr("class", "titlelinechart11")
@@ -1135,6 +1135,10 @@ function chart2Update(props) {
         {
                 linechart1.selectAll(".line1")
                 .attr("stroke", "none");
+
+                 linechart1.selectAll(".circle1")
+                 .attr("fill", "none");
+
                 return;
         }
 

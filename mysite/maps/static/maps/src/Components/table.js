@@ -19,9 +19,12 @@ render() {
          { Header: "Waste Stream Type",
             accessor: "Waste Stream Type",
             minWidth: 200},
-            {Header : "Facility Type",
-            accessor: "Facility Type",
-            minWidth: 200}
+        {Header : "Facility Type",
+        accessor: "Facility Type",
+        minWidth: 200},
+        {Header : "Material",
+        accessor: "Material",
+        minWidth: 200}
 
     ]
     const props = this.props;

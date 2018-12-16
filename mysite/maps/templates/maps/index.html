@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 
 <meta charset="utf-8">
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.11/semantic.min.css">
 {% load static %}
+
 
 <html lang='en'>
         <head>
@@ -10,46 +11,6 @@
                 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         </head>
 
-        <style type="text/css">
- #tooltip {
-      position: absolute;
-      width: 200px;
-      height: auto;
-      padding: 10px;
-      background-color: white;
-      -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-      border-radius: 10px;
-      -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-      -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-      pointer-events: none;
-    }
-
-    #tooltip.hidden {
-      display: none;
-    }
-
-    #tooltip p {
-      margin: 0;
-      font-family: Futura;
-      font-size: 16px;
-      line-height: 20px;
-    }
-</text>
-</style>
-
-
-
-
-        <!-- <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-	
-
-
-        <script src="https://use.fontawesome.com/936ade9b42.js"></script>
-    -->
-
-       
       
         <link rel="stylesheet" type="text/css" href="{% static 'maps/style.css' %}" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.1.0/dist/leaflet.css"
@@ -58,7 +19,9 @@
         integrity="sha512-mNqn2Wg7tSToJhvHcqfzLMU6J4mkOImSPTxVZAdo+lcPlk+GhZmYgACEe0x35K7YzW1zJ7XyJV/TT1MrdXvMcA=="crossorigin=""></script>
         <script src="https://unpkg.com/topojson@3"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" 
+         integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" 
+         crossorigin="anonymous"></script>
        
 
         <body>
@@ -67,14 +30,17 @@
 		<p><b>Waste data obtained from wastedataflow.org<br>
 		District boundaries obtained from geoportal.statistics.gov.uk/</b></p>         
         </body>
-   
+           
 
-
-        
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.11/semantic.min.css">
 
         <script src="{% static '/maps/scripts/app.js' %} "></script>
+<style>
+	.ui.dropdown .menu {
+        max-height: 10 !important;
+        /* You might also want to add `!important` to automatically override all media-queries. */
+        }
+</style>
+	
         <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
-   	
-       
+   	       
 </html>

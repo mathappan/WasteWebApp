@@ -30,3 +30,8 @@ width: 100%;
 .lengendwidth {
 width: 100%;
 }
+
+.ui.dropdown .menu {
+    max-height: 10;
+    /* You might also want to add `!important` to automatically override all media-queries. */
+}
